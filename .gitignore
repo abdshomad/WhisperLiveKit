@@ -128,7 +128,7 @@ dmypy.json
 .pyre/
 
 *.wav
-run_*.sh
+run.sh
 
 # Downloaded models
 *.pt 
