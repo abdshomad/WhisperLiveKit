@@ -130,6 +130,10 @@ dmypy.json
 *.wav
 run.sh
 
+# Recording feature
+recordings/
+recordings.db
+
 # Downloaded models
 *.pt 
 
