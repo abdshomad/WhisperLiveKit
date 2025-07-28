@@ -392,6 +392,144 @@
         .transcript-container::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, #5a6fd8, #6a4190);
         }
+
+        /* Speaker Boxes Styles */
+        .speaker-boxes-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .speaker-boxes-header {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .speaker-boxes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
+            gap: 10px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .speaker-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 8px;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .speaker-box:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .speaker-box.active {
+            animation: pulse 1.5s ease-in-out infinite;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        .speaker-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 8px;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .speaker-box.active::before {
+            opacity: 1;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Speaker box colors */
+        .speaker-1 {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .speaker-2 {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .speaker-3 {
+            background: linear-gradient(135deg, #45b7d1, #96c93d);
+        }
+
+        .speaker-4 {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .speaker-5 {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .speaker-6 {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .speaker-7 {
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+        }
+
+        /* Responsive design for speaker boxes */
+        @media (max-width: 768px) {
+            .speaker-boxes-grid {
+                grid-template-columns: repeat(auto-fit, minmax(18px, 1fr));
+                gap: 8px;
+            }
+            
+            .speaker-box {
+                width: 18px;
+                height: 18px;
+                font-size: 7px;
+            }
+        }
     </style>
 </head>
 
@@ -438,6 +576,19 @@
 
         <div id="status">Klik tombol untuk memulai transkripsi</div>
 
+        <div class="speaker-boxes-container">
+            <div class="speaker-boxes-header">🎤 Speaker Boxes <span id="active-speaker-status" style="font-size: 0.8rem; color: #7f8c8d; font-weight: normal;">(Klik untuk test)</span></div>
+            <div class="speaker-boxes-grid">
+                <div class="speaker-box speaker-1" data-speaker="1">S1</div>
+                <div class="speaker-box speaker-2" data-speaker="2">S2</div>
+                <div class="speaker-box speaker-3" data-speaker="3">S3</div>
+                <div class="speaker-box speaker-4" data-speaker="4">S4</div>
+                <div class="speaker-box speaker-5" data-speaker="5">S5</div>
+                <div class="speaker-box speaker-6" data-speaker="6">S6</div>
+                <div class="speaker-box speaker-7" data-speaker="7">S7</div>
+            </div>
+        </div>
+
         <div class="transcript-container">
             <div class="transcript-header">📝 Hasil Transkripsi</div>
             <div id="linesTranscript"></div>
@@ -461,6 +612,8 @@
         let animationFrame = null;
         let waitingForStop = false;
         let lastReceivedData = null;
+        let activeSpeaker = null;
+        let speakerBoxes = {};
         waveCanvas.width = 70 * (window.devicePixelRatio || 1);
         waveCanvas.height = 35 * (window.devicePixelRatio || 1);
         waveCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
@@ -471,6 +624,19 @@
         const websocketInput = document.getElementById("websocketInput");
         const linesTranscriptDiv = document.getElementById("linesTranscript");
         const timerElement = document.querySelector(".timer");
+
+        // Initialize speaker boxes
+        document.querySelectorAll('.speaker-box').forEach(box => {
+            const speakerId = box.getAttribute('data-speaker');
+            speakerBoxes[speakerId] = box;
+            
+            // Add click event for testing speaker boxes
+            box.addEventListener('click', () => {
+                // For testing purposes - manually activate speaker
+                updateActiveSpeaker(speakerId);
+                console.log(`Manually activated speaker ${speakerId}`);
+            });
+        });
 
         const host = window.location.hostname || "localhost";
         const port = window.location.port;
@@ -509,6 +675,9 @@
                 };
 
                 websocket.onclose = () => {
+                    // Clear active speaker when connection closes
+                    updateActiveSpeaker(null);
+                    
                     if (userClosing) {
                         if (waitingForStop) {
                             statusText.textContent = "Pemrosesan selesai atau koneksi ditutup.";
@@ -562,6 +731,9 @@
                         statusText.textContent = "Pemrosesan audio selesai! Siap untuk merekam lagi.";
                         recordButton.disabled = false;
                         
+                        // Clear active speaker when stopping
+                        updateActiveSpeaker(null);
+                        
                         if (websocket) {
                             websocket.close(); // will trigger onclose
                         }
@@ -580,6 +752,18 @@
                         status = "active_transcription"
                     } = data;
                     
+                    // Update active speaker based on the latest line
+                    if (lines.length > 0) {
+                        const latestLine = lines[lines.length - 1];
+                        if (latestLine.speaker && latestLine.speaker > 0) {
+                            updateActiveSpeaker(latestLine.speaker.toString());
+                        } else if (latestLine.speaker === -1) {
+                            updateActiveSpeaker("1"); // Speaker 1 for -1
+                        } else {
+                            updateActiveSpeaker(null);
+                        }
+                    }
+                    
                     renderLinesWithBuffer(
                         lines, 
                         buffer_diarization, 
@@ -591,6 +775,43 @@
                     );
                 };
             });
+        }
+
+        function updateActiveSpeaker(speakerId) {
+            // Remove active class from all speaker boxes
+            Object.values(speakerBoxes).forEach(box => {
+                box.classList.remove('active');
+            });
+            
+            // Add active class to the current speaker
+            if (speakerId && speakerBoxes[speakerId]) {
+                speakerBoxes[speakerId].classList.add('active');
+                activeSpeaker = speakerId;
+                
+                // Update status to show active speaker
+                if (isRecording) {
+                    statusText.textContent = `Sedang merekam... Speaker ${speakerId} aktif`;
+                }
+                
+                // Update header status
+                const activeSpeakerStatus = document.getElementById('active-speaker-status');
+                if (activeSpeakerStatus) {
+                    activeSpeakerStatus.textContent = `(Speaker ${speakerId} aktif)`;
+                    activeSpeakerStatus.style.color = '#27ae60';
+                }
+            } else {
+                activeSpeaker = null;
+                if (isRecording) {
+                    statusText.textContent = "Sedang merekam...";
+                }
+                
+                // Update header status
+                const activeSpeakerStatus = document.getElementById('active-speaker-status');
+                if (activeSpeakerStatus) {
+                    activeSpeakerStatus.textContent = "(Klik untuk test)";
+                    activeSpeakerStatus.style.color = '#7f8c8d';
+                }
+            }
         }
 
         function renderLinesWithBuffer(lines, buffer_diarization, buffer_transcription, remaining_time_diarization, remaining_time_transcription, isFinalizing = false, current_status = "active_transcription") {
@@ -728,6 +949,9 @@
         async function stopRecording() {
             userClosing = true;
             waitingForStop = true;
+            
+            // Clear active speaker when stopping
+            updateActiveSpeaker(null);
             
             if (websocket && websocket.readyState === WebSocket.OPEN) {
                 // Send empty audio buffer as stop signal
