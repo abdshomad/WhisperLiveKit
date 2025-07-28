@@ -742,6 +742,7 @@
         let lastReceivedData = null;
         let activeSpeaker = null;
         let speakerBoxes = {};
+        let activeSpeakerTimeout = null;
         waveCanvas.width = 70 * (window.devicePixelRatio || 1);
         waveCanvas.height = 35 * (window.devicePixelRatio || 1);
         waveCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
@@ -839,6 +840,13 @@
 
             if (data.lines && data.lines.length > 0) {
                 updateTranscript(data.lines);
+                
+                // Automatically detect active speaker from the latest line
+                const latestLine = data.lines[data.lines.length - 1];
+                if (latestLine && latestLine.speaker && latestLine.speaker !== -1 && latestLine.speaker !== 0) {
+                    // Update active speaker based on the most recent transcription
+                    updateActiveSpeaker(latestLine.speaker);
+                }
             }
 
             if (data.buffer_transcription) {
@@ -847,6 +855,18 @@
 
             if (data.buffer_diarization) {
                 updateDiarization(data.buffer_diarization);
+            }
+
+            // Clear active speaker if no recent activity (no lines and no buffer)
+            if ((!data.lines || data.lines.length === 0) && 
+                (!data.buffer_transcription || data.buffer_transcription.trim() === '') &&
+                (!data.buffer_diarization || data.buffer_diarization.trim() === '')) {
+                // Clear active speaker after a short delay to avoid flickering
+                setTimeout(() => {
+                    if (activeSpeaker) {
+                        updateActiveSpeaker(null);
+                    }
+                }, 2000); // 2 second delay
             }
 
             if (data.remaining_time_transcription !== undefined) {
@@ -932,6 +952,12 @@
         }
 
         function updateActiveSpeaker(speakerId) {
+            // Clear existing timeout
+            if (activeSpeakerTimeout) {
+                clearTimeout(activeSpeakerTimeout);
+                activeSpeakerTimeout = null;
+            }
+            
             // Remove active class from all speaker boxes with smooth transition
             document.querySelectorAll('.speaker-box').forEach(box => {
                 if (box.classList.contains('active')) {
@@ -949,6 +975,11 @@
                 const activeBox = speakerBoxes[speakerId];
                 activeBox.classList.add('active');
                 activeSpeaker = speakerId;
+                
+                // Set timeout to clear active speaker after 5 seconds of inactivity
+                activeSpeakerTimeout = setTimeout(() => {
+                    updateActiveSpeaker(null);
+                }, 5000);
                 
                 // Add speaking rhythm effect when speaker becomes active
                 activeBox.style.transform = 'scale(1.3)';
@@ -1011,7 +1042,7 @@
                 // Reset active speaker indicator
                 const activeIndicator = document.getElementById("active-speaker-indicator");
                 if (activeIndicator) {
-                    activeIndicator.textContent = "Tidak ada speaker aktif";
+                    activeIndicator.textContent = "Menunggu speaker aktif...";
                     activeIndicator.classList.remove("active");
                 }
             }
