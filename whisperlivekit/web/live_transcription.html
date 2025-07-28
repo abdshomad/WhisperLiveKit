@@ -1,46 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Audio Transcription</title>
+    <title>Transkripsi Audio Langsung</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
             text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+
+        .controls-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         #recordButton {
-            width: 50px;
-            height: 50px;
+            width: 80px;
+            height: 80px;
             border: none;
             border-radius: 50%;
-            background-color: white;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid rgb(233, 233, 233);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            box-shadow: 0 8px 25px rgba(238, 90, 36, 0.3);
+        }
+
+        #recordButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(238, 90, 36, 0.4);
         }
 
         #recordButton.recording {
-            width: 180px;
-            border-radius: 40px;
+            width: 220px;
+            border-radius: 50px;
             justify-content: flex-start;
-            padding-left: 20px;
+            padding-left: 25px;
+            background: linear-gradient(135deg, #00b894, #00a085);
+            box-shadow: 0 8px 25px rgba(0, 184, 148, 0.3);
         }
 
         #recordButton:active {
             transform: scale(0.95);
         }
 
+        #recordButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .shape-container {
-            width: 25px;
-            height: 25px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -48,28 +107,27 @@
         }
 
         .shape {
-            width: 25px;
-            height: 25px;
-            background-color: rgb(209, 61, 53);
+            width: 30px;
+            height: 30px;
+            background-color: #ffffff;
             border-radius: 50%;
             transition: all 0.3s ease;
         }
 
         #recordButton:disabled .shape {
-            background-color: #6e6d6d;
+            background-color: #bdc3c7;
         }
 
         #recordButton.recording .shape {
-            border-radius: 5px;
-            width: 25px;
-            height: 25px;
+            border-radius: 6px;
+            width: 30px;
+            height: 30px;
         }
 
-        /* Recording elements */
         .recording-info {
             display: none;
             align-items: center;
-            margin-left: 15px;
+            margin-left: 20px;
             flex-grow: 1;
         }
 
@@ -78,8 +136,8 @@
         }
 
         .wave-container {
-            width: 60px;
-            height: 30px;
+            width: 70px;
+            height: 35px;
             position: relative;
             display: flex;
             align-items: center;
@@ -92,138 +150,175 @@
         }
 
         .timer {
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-left: 10px;
-        }
-
-        #status {
-            margin-top: 20px;
             font-size: 16px;
-            color: #333;
+            font-weight: 600;
+            color: #ffffff;
+            margin-left: 15px;
         }
 
-        .settings-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin-top: 20px;
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
-        .settings {
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .setting-group {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            gap: 5px;
+            gap: 8px;
+        }
+
+        .setting-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
         }
 
         #chunkSelector,
         #websocketInput {
             font-size: 16px;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid #e1e8ed;
             background-color: #ffffff;
-            max-height: 30px;
+            transition: all 0.3s ease;
+            font-family: inherit;
         }
 
         #websocketInput {
-            width: 200px;
+            width: 100%;
         }
 
         #chunkSelector:focus,
         #websocketInput:focus {
             outline: none;
-            border-color: #007bff;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-        label {
-            font-size: 14px;
+        #status {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: #2c3e50;
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
-        /* Speaker-labeled transcript area */
+        .transcript-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .transcript-header {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
         #linesTranscript {
-            margin: 20px auto;
-            max-width: 700px;
             text-align: left;
             font-size: 16px;
+            line-height: 1.6;
         }
 
         #linesTranscript p {
-            margin: 0px 0;
-        }
-
-        #linesTranscript strong {
-            color: #333;
+            margin: 0 0 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            border-left: 4px solid #3498db;
         }
 
         #speaker {
-            border: 1px solid rgb(229, 229, 229);
-            border-radius: 100px;
-            padding: 2px 10px;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            padding: 6px 15px;
             font-size: 14px;
-            margin-bottom: 0px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: inline-block;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
         }
+
         .label_diarization {
-            background-color: #ffffff66;
-            border-radius: 8px 8px 8px 8px;
-            padding: 2px 10px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border-radius: 12px;
+            padding: 6px 12px;
             margin-left: 10px;
             display: inline-block;
             white-space: nowrap;
-            font-size: 14px;
-            margin-bottom: 0px;
-            color: rgb(134, 134, 134)
+            font-size: 12px;
+            font-weight: 500;
         }
 
         .label_transcription {
-            background-color: #ffffff66;
-            border-radius: 8px 8px 8px 8px;
-            padding: 2px 10px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            border-radius: 12px;
+            padding: 6px 12px;
             display: inline-block;
             white-space: nowrap;
             margin-left: 10px;
-            font-size: 14px;
-            margin-bottom: 0px;
-            color: #000000
+            font-size: 12px;
+            font-weight: 500;
         }
 
         #timeInfo {
-            color: #666;
+            color: #7f8c8d;
             margin-left: 10px;
+            font-size: 12px;
         }
 
         .textcontent {
             font-size: 16px;
-            /* margin-left: 10px; */
             padding-left: 10px;
             margin-bottom: 10px;
-            margin-top: 1px;
-            padding-top: 5px;
-            border-radius: 0px 0px 0px 10px;
+            margin-top: 8px;
+            border-radius: 0 0 0 12px;
+            color: #2c3e50;
         }
 
         .buffer_diarization {
-            color: rgb(134, 134, 134);
+            color: #e74c3c;
             margin-left: 4px;
+            font-style: italic;
         }
 
         .buffer_transcription {
-            color: #7474748c;
+            color: #f39c12;
             margin-left: 4px;
+            font-style: italic;
         }
-
 
         .spinner {
             display: inline-block;
-            width: 8px;
-            height: 8px;
-            border: 2px solid #8d8d8d5c;
-            border-top: 2px solid #6c6c6ce5;
+            width: 10px;
+            height: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #ffffff;
             border-radius: 50%;
-            animation: spin 0.6s linear infinite;
+            animation: spin 0.8s linear infinite;
             vertical-align: middle;
             margin-bottom: 2px;
             margin-right: 5px;
@@ -236,61 +331,118 @@
         }
 
         .silence {
-            color: #666;
-            background-color: #f3f3f3;
+            color: #7f8c8d;
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
             font-size: 13px;
-            border-radius: 30px;
-            padding: 2px 10px;
+            border-radius: 20px;
+            padding: 6px 15px;
+            font-weight: 500;
         }
 
         .loading {
-            color: #666;
-            background-color: #ff4d4d0f;
-            border-radius: 8px 8px 8px 0px;
-            padding: 2px 10px;
-            font-size: 14px;
+            color: #ffffff;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 13px;
             margin-bottom: 0px;
+            font-weight: 500;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .controls-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            #recordButton.recording {
+                width: 200px;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Custom scrollbar */
+        .transcript-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .transcript-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .transcript-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        .transcript-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
         }
     </style>
 </head>
 
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 Transkripsi Audio Langsung</h1>
+            <p>Klik tombol untuk memulai transkripsi audio real-time</p>
+        </div>
 
-    <div class="settings-container">
-        <button id="recordButton">
-            <div class="shape-container">
-                <div class="shape"></div>
-            </div>
-            <div class="recording-info">
-                <div class="wave-container">
-                    <canvas id="waveCanvas"></canvas>
+        <div class="controls-section">
+            <button id="recordButton">
+                <div class="shape-container">
+                    <div class="shape"></div>
                 </div>
-                <div class="timer">00:00</div>
-            </div>
-        </button>
-        <div class="settings">
-            <div>
-                <label for="chunkSelector">Chunk size (ms):</label>
-                <select id="chunkSelector">
-                    <option value="500">500 ms</option>
-                    <option value="1000" selected>1000 ms</option>
-                    <option value="2000">2000 ms</option>
-                    <option value="3000">3000 ms</option>
-                    <option value="4000">4000 ms</option>
-                    <option value="5000">5000 ms</option>
-                </select>
-            </div>
-            <div>
-                <label for="websocketInput">WebSocket URL:</label>
-                <input id="websocketInput" type="text" />
+                <div class="recording-info">
+                    <div class="wave-container">
+                        <canvas id="waveCanvas"></canvas>
+                    </div>
+                    <div class="timer">00:00</div>
+                </div>
+            </button>
+            
+            <div class="settings-panel">
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label for="chunkSelector">Ukuran Chunk (ms):</label>
+                        <select id="chunkSelector">
+                            <option value="500">500 ms</option>
+                            <option value="1000" selected>1000 ms</option>
+                            <option value="2000">2000 ms</option>
+                            <option value="3000">3000 ms</option>
+                            <option value="4000">4000 ms</option>
+                            <option value="5000">5000 ms</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="websocketInput">URL WebSocket:</label>
+                        <input id="websocketInput" type="text" />
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div id="status">Klik tombol untuk memulai transkripsi</div>
+
+        <div class="transcript-container">
+            <div class="transcript-header">📝 Hasil Transkripsi</div>
+            <div id="linesTranscript"></div>
+        </div>
     </div>
-
-    <p id="status"></p>
-
-    <!-- Speaker-labeled transcript -->
-    <div id="linesTranscript"></div>
 
     <script>
         let isRecording = false;
@@ -309,8 +461,8 @@
         let animationFrame = null;
         let waitingForStop = false;
         let lastReceivedData = null;
-        waveCanvas.width = 60 * (window.devicePixelRatio || 1);
-        waveCanvas.height = 30 * (window.devicePixelRatio || 1);
+        waveCanvas.width = 70 * (window.devicePixelRatio || 1);
+        waveCanvas.height = 35 * (window.devicePixelRatio || 1);
         waveCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
 
         const statusText = document.getElementById("status");
@@ -334,11 +486,11 @@
         websocketInput.addEventListener("change", () => {
             const urlValue = websocketInput.value.trim();
             if (!urlValue.startsWith("ws://") && !urlValue.startsWith("wss://")) {
-                statusText.textContent = "Invalid WebSocket URL (must start with ws:// or wss://)";
+                statusText.textContent = "URL WebSocket tidak valid (harus dimulai dengan ws:// atau wss://)";
                 return;
             }
             websocketUrl = urlValue;
-            statusText.textContent = "WebSocket URL updated. Ready to connect.";
+            statusText.textContent = "URL WebSocket diperbarui. Siap untuk terhubung.";
         });
 
         function setupWebSocket() {
@@ -346,20 +498,20 @@
                 try {
                     websocket = new WebSocket(websocketUrl);
                 } catch (error) {
-                    statusText.textContent = "Invalid WebSocket URL. Please check and try again.";
+                    statusText.textContent = "URL WebSocket tidak valid. Silakan periksa dan coba lagi.";
                     reject(error);
                     return;
                 }
 
                 websocket.onopen = () => {
-                    statusText.textContent = "Connected to server.";
+                    statusText.textContent = "Terhubung ke server.";
                     resolve();
                 };
 
                 websocket.onclose = () => {
                     if (userClosing) {
                         if (waitingForStop) {
-                            statusText.textContent = "Processing finalized or connection closed.";
+                            statusText.textContent = "Pemrosesan selesai atau koneksi ditutup.";
                             if (lastReceivedData) {
                                 renderLinesWithBuffer(
                                     lastReceivedData.lines || [],
@@ -369,10 +521,8 @@
                                 );
                             }
                         }
-                        // If ready_to_stop was received, statusText is already "Finished processing..."
-                        // and waitingForStop is false.
                     } else {
-                        statusText.textContent = "Disconnected from the WebSocket server. (Check logs if model is loading.)";
+                        statusText.textContent = "Terputus dari server WebSocket. (Periksa log jika model sedang dimuat.)";
                         if (isRecording) {
                             stopRecording(); 
                         }
@@ -386,7 +536,7 @@
                 };
 
                 websocket.onerror = () => {
-                    statusText.textContent = "Error connecting to WebSocket.";
+                    statusText.textContent = "Error saat menghubungkan ke WebSocket.";
                     reject(new Error("Error connecting to WebSocket"));
                 };
 
@@ -409,12 +559,11 @@
                                 true // isFinalizing = true
                             );
                         }
-                        statusText.textContent = "Finished processing audio! Ready to record again.";
+                        statusText.textContent = "Pemrosesan audio selesai! Siap untuk merekam lagi.";
                         recordButton.disabled = false;
                         
                         if (websocket) {
                             websocket.close(); // will trigger onclose
-                            // websocket = null; // onclose handle setting websocket to null
                         }
                         return;
                     }
@@ -446,7 +595,7 @@
 
         function renderLinesWithBuffer(lines, buffer_diarization, buffer_transcription, remaining_time_diarization, remaining_time_transcription, isFinalizing = false, current_status = "active_transcription") {
             if (current_status === "no_audio_detected") {
-                linesTranscriptDiv.innerHTML = "<p style='text-align: center; color: #666; margin-top: 20px;'><em>No audio detected...</em></p>";
+                linesTranscriptDiv.innerHTML = "<p style='text-align: center; color: #7f8c8d; margin-top: 20px; font-style: italic;'>Tidak ada audio terdeteksi...</p>";
                 return; 
             }
 
@@ -458,25 +607,24 @@
 
                 let speakerLabel = "";
                 if (item.speaker === -2) {
-                    speakerLabel = `<span class="silence">Silence<span id='timeInfo'>${timeInfo}</span></span>`;
+                    speakerLabel = `<span class="silence">Diam<span id='timeInfo'>${timeInfo}</span></span>`;
                 } else if (item.speaker == 0 && !isFinalizing) {
-                    speakerLabel = `<span class='loading'><span class="spinner"></span><span id='timeInfo'>${remaining_time_diarization} second(s) of audio are undergoing diarization</span></span>`;
+                    speakerLabel = `<span class='loading'><span class="spinner"></span><span id='timeInfo'>${remaining_time_diarization} detik audio sedang menjalani diarization</span></span>`;
                 } else if (item.speaker == -1) {
-                    speakerLabel = `<span id="speaker">Speaker 1<span id='timeInfo'>${timeInfo}</span></span>`;
+                    speakerLabel = `<span id="speaker">Pembicara 1<span id='timeInfo'>${timeInfo}</span></span>`;
                 } else if (item.speaker !== -1 && item.speaker !== 0) {
-                    speakerLabel = `<span id="speaker">Speaker ${item.speaker}<span id='timeInfo'>${timeInfo}</span></span>`;
+                    speakerLabel = `<span id="speaker">Pembicara ${item.speaker}<span id='timeInfo'>${timeInfo}</span></span>`;
                 }
-
 
                 let currentLineText = item.text || "";
 
                 if (idx === lines.length - 1) { 
                     if (!isFinalizing) {
                         if (remaining_time_transcription > 0) {
-                             speakerLabel += `<span class="label_transcription"><span class="spinner"></span>Transcription lag <span id='timeInfo'>${remaining_time_transcription}s</span></span>`;
+                             speakerLabel += `<span class="label_transcription"><span class="spinner"></span>Lag transkripsi <span id='timeInfo'>${remaining_time_transcription}s</span></span>`;
                         }
                         if (buffer_diarization && remaining_time_diarization > 0) {
-                             speakerLabel += `<span class="label_diarization"><span class="spinner"></span>Diarization lag<span id='timeInfo'>${remaining_time_diarization}s</span></span>`;
+                             speakerLabel += `<span class="label_diarization"><span class="spinner"></span>Lag diarization<span id='timeInfo'>${remaining_time_diarization}s</span></span>`;
                         }
                     }
 
@@ -521,8 +669,8 @@
             analyser.getByteTimeDomainData(dataArray);
             
             waveCtx.clearRect(0, 0, waveCanvas.width / (window.devicePixelRatio || 1), waveCanvas.height / (window.devicePixelRatio || 1));
-            waveCtx.lineWidth = 1;
-            waveCtx.strokeStyle = 'rgb(0, 0, 0)';
+            waveCtx.lineWidth = 2;
+            waveCtx.strokeStyle = '#ffffff';
             waveCtx.beginPath();
             
             const sliceWidth = (waveCanvas.width / (window.devicePixelRatio || 1)) / bufferLength;
@@ -572,7 +720,7 @@
                 isRecording = true;
                 updateUI();
             } catch (err) {
-                statusText.textContent = "Error accessing microphone. Please allow microphone access.";
+                statusText.textContent = "Error mengakses mikrofon. Silakan izinkan akses mikrofon.";
                 console.error(err);
             }
         }
@@ -585,7 +733,7 @@
                 // Send empty audio buffer as stop signal
                 const emptyBlob = new Blob([], { type: 'audio/webm' });
                 websocket.send(emptyBlob);
-                statusText.textContent = "Recording stopped. Processing final audio...";
+                statusText.textContent = "Rekaman dihentikan. Memproses audio terakhir...";
             }
             
             if (recorder) {
@@ -623,7 +771,6 @@
             timerElement.textContent = "00:00";
             startTime = null;
             
-            
             isRecording = false;
             updateUI();	
         }
@@ -645,7 +792,7 @@
                         await startRecording();
                     }
                 } catch (err) {
-                    statusText.textContent = "Could not connect to WebSocket or access mic. Aborted.";
+                    statusText.textContent = "Tidak dapat terhubung ke WebSocket atau mengakses mikrofon. Dibatalkan.";
                     console.error(err);
                 }
             } else {
@@ -659,15 +806,15 @@
             recordButton.disabled = waitingForStop;
 
             if (waitingForStop) {
-                if (statusText.textContent !== "Recording stopped. Processing final audio...") {
-                     statusText.textContent = "Please wait for processing to complete...";
+                if (statusText.textContent !== "Rekaman dihentikan. Memproses audio terakhir...") {
+                     statusText.textContent = "Silakan tunggu pemrosesan selesai...";
                 }
             } else if (isRecording) {
-                statusText.textContent = "Recording...";
+                statusText.textContent = "Sedang merekam...";
             } else {
-                if (statusText.textContent !== "Finished processing audio! Ready to record again." &&
-                    statusText.textContent !== "Processing finalized or connection closed.") {
-                    statusText.textContent = "Click to start transcription";
+                if (statusText.textContent !== "Pemrosesan audio selesai! Siap untuk merekam lagi." &&
+                    statusText.textContent !== "Pemrosesan selesai atau koneksi ditutup.") {
+                    statusText.textContent = "Klik untuk memulai transkripsi";
                 }
             }
             if (!waitingForStop) {
