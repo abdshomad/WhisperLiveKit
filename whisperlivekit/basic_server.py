@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from whisperlivekit import TranscriptionEngine, AudioProcessor, get_web_interface_html, parse_args
@@ -99,16 +99,56 @@ async def get_recording(recording_id: int):
     return JSONResponse(content=recording)
 
 @app.get("/api/recordings/{recording_id}/download")
-async def download_recording(recording_id: int):
+async def download_recording(recording_id: int, request: Request):
     """Download a recording file."""
     filepath = recording_manager.get_recording_file_path(recording_id)
     if not filepath or not filepath.exists():
         raise HTTPException(status_code=404, detail="Recording file not found")
     
+    # Check if file is empty
+    file_size = filepath.stat().st_size
+    if file_size == 0:
+        raise HTTPException(status_code=404, detail="Recording file is empty")
+    
+    # Handle range requests for audio streaming
+    range_header = request.headers.get("range")
+    if range_header:
+        try:
+            # Parse range header (e.g., "bytes=0-1023")
+            range_str = range_header.replace("bytes=", "")
+            start, end = range_str.split("-")
+            start_byte = int(start)
+            end_byte = int(end) if end else file_size - 1
+            
+            if start_byte >= file_size or end_byte >= file_size:
+                raise HTTPException(status_code=416, detail="Range Not Satisfiable")
+            
+            # Read the requested range
+            with open(filepath, 'rb') as f:
+                f.seek(start_byte)
+                data = f.read(end_byte - start_byte + 1)
+            
+            headers = {
+                "Content-Range": f"bytes {start_byte}-{end_byte}/{file_size}",
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(len(data))
+            }
+            
+            return Response(
+                content=data,
+                headers=headers,
+                media_type="audio/wav",
+                status_code=206
+            )
+        except (ValueError, IndexError):
+            raise HTTPException(status_code=416, detail="Range Not Satisfiable")
+    
+    # Return full file
     return FileResponse(
         path=str(filepath),
         filename=filepath.name,
-        media_type="audio/wav"
+        media_type="audio/wav",
+        headers={"Accept-Ranges": "bytes"}
     )
 
 @app.put("/api/recordings/{recording_id}")

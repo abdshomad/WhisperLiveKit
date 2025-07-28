@@ -136,13 +136,50 @@ class RecordingManager:
     def _save_audio_file(self, filepath: Path, audio_chunks: List[bytes]):
         """Save audio chunks to WAV file."""
         try:
-            # For now, we'll save as raw PCM data
-            # In a real implementation, you'd want to properly handle different audio formats
+            if not audio_chunks:
+                logger.warning("No audio chunks to save")
+                # Create an empty file with minimal WAV header
+                with open(filepath, 'wb') as f:
+                    # Write minimal WAV header for empty file
+                    f.write(b'RIFF')
+                    f.write((0).to_bytes(4, 'little'))  # File size - 8
+                    f.write(b'WAVE')
+                    f.write(b'fmt ')
+                    f.write((16).to_bytes(4, 'little'))  # fmt chunk size
+                    f.write((1).to_bytes(2, 'little'))   # PCM format
+                    f.write((1).to_bytes(2, 'little'))   # Mono
+                    f.write((16000).to_bytes(4, 'little'))  # Sample rate
+                    f.write((32000).to_bytes(4, 'little'))  # Byte rate
+                    f.write((2).to_bytes(2, 'little'))   # Block align
+                    f.write((16).to_bytes(2, 'little'))  # Bits per sample
+                    f.write(b'data')
+                    f.write((0).to_bytes(4, 'little'))  # Data size
+                return
+            
+            # Calculate total size of audio data
+            total_size = sum(len(chunk) for chunk in audio_chunks)
+            
             with open(filepath, 'wb') as f:
+                # Write WAV header
+                f.write(b'RIFF')
+                f.write((36 + total_size).to_bytes(4, 'little'))  # File size - 8
+                f.write(b'WAVE')
+                f.write(b'fmt ')
+                f.write((16).to_bytes(4, 'little'))  # fmt chunk size
+                f.write((1).to_bytes(2, 'little'))   # PCM format
+                f.write((1).to_bytes(2, 'little'))   # Mono
+                f.write((16000).to_bytes(4, 'little'))  # Sample rate
+                f.write((32000).to_bytes(4, 'little'))  # Byte rate
+                f.write((2).to_bytes(2, 'little'))   # Block align
+                f.write((16).to_bytes(2, 'little'))  # Bits per sample
+                f.write(b'data')
+                f.write(total_size.to_bytes(4, 'little'))  # Data size
+                
+                # Write audio data
                 for chunk in audio_chunks:
                     f.write(chunk)
             
-            logger.info(f"Audio file saved: {filepath}")
+            logger.info(f"Audio file saved: {filepath} ({total_size} bytes)")
         except Exception as e:
             logger.error(f"Error saving audio file: {e}")
             raise
