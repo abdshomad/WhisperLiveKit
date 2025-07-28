@@ -1,0 +1,26 @@
+# WhisperLiveKit Installation Requirements
+# Generated from the installation process
+
+# Core WhisperLiveKit (installed in development mode)
+-e .
+
+# GPU-optimized dependencies
+torch>=2.5.1+cu121
+torchaudio>=2.5.1+cu121
+torchvision>=0.20.1+cu121
+ctranslate2==3.22.0
+
+# Additional dependencies for enhanced functionality
+diart>=0.9.0
+
+# Additional optional dependencies you can install as needed:
+# whisperlivekit[whisper]              # Original Whisper
+# whisperlivekit[whisper-timestamped]  # Improved timestamps  
+# whisperlivekit[mlx-whisper]          # Apple Silicon optimization
+# whisperlivekit[openai]               # OpenAI API
+# whisperlivekit[simulstreaming]       # SimulStreaming backend
+
+# For sentence-based buffer trimming:
+# mosestokenizer
+# wtpsplit
+# tokenize_uk  # If working with Ukrainian text

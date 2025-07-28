@@ -1,0 +1,109 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whisperlivekit"
+version = "0.2.2"
+description = "Real-time, Fully Local Whisper's Speech-to-Text and Speaker Diarization"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Quentin Fuxa"}
+]
+maintainers = [
+    {name = "Quentin Fuxa"}
+]
+keywords = ["whisper", "speech-to-text", "real-time", "diarization"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+requires-python = ">=3.9,<3.12"
+dependencies = [
+    "fastapi",
+    "librosa",
+    "soundfile",
+    "faster-whisper",
+    "uvicorn",
+    "websockets",
+    "torch>=2.5.1",
+    "torchaudio>=2.5.1",
+    "torchvision>=0.20.1",
+    "ctranslate2==3.22.0",
+    "diart>=0.9.0",
+    # Diarization dependencies
+    "pyannote-audio>=3.3.0",
+    "pyannote-core>=5.0.0",
+    "pyannote-database>=5.1.0",
+    "pyannote-metrics>=3.2.0",
+    "pyannote-pipeline>=3.0.0",
+    "speechbrain>=1.0.0",
+    "pytorch-lightning>=2.5.0",
+    "pytorch-metric-learning>=2.8.0",
+    "torch-audiomentations>=0.12.0",
+    "torch-pitch-shift>=1.2.0",
+    "torchmetrics>=1.8.0",
+    # Additional dependencies for diarization
+    "huggingface-hub",
+    "transformers",
+    "rx",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+]
+
+[project.optional-dependencies]
+diarization = [
+    "diart",
+    "pyannote-audio>=3.3.0",
+    "pyannote-core>=5.0.0", 
+    "pyannote-database>=5.1.0",
+    "pyannote-metrics>=3.2.0",
+    "pyannote-pipeline>=3.0.0",
+    "speechbrain>=1.0.0",
+    "pytorch-lightning>=2.5.0",
+    "pytorch-metric-learning>=2.8.0",
+    "torch-audiomentations>=0.12.0",
+    "torch-pitch-shift>=1.2.0",
+    "torchmetrics>=1.8.0",
+    "huggingface-hub",
+    "transformers",
+    "rx",
+]
+vac = ["torch"]
+sentence = ["mosestokenizer", "wtpsplit"]
+whisper = ["whisper"]
+whisper-timestamped = ["whisper-timestamped"]
+mlx-whisper = ["mlx-whisper"]
+openai = ["openai"]
+
+[project.urls]
+Homepage = "https://github.com/QuentinFuxa/WhisperLiveKit"
+Repository = "https://github.com/QuentinFuxa/WhisperLiveKit"
+Documentation = "https://github.com/QuentinFuxa/WhisperLiveKit"
+
+[project.scripts]
+whisperlivekit-server = "whisperlivekit.basic_server:main"
+
+[tool.setuptools.packages.find]
+include = ["whisperlivekit*"]
+
+[tool.setuptools.package-data]
+"whisperlivekit" = ["web/*.html"]
+"whisperlivekit.simul_whisper" = ["dual_license_simulstreaming.md"]
+"whisperlivekit.simul_whisper.whisper.assets" = ["*.tiktoken", "*.npz"]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest",
+    "pytest-cov",
+    "black",
+    "flake8",
+    "mypy",
+] 
