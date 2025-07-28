@@ -286,87 +286,95 @@
         }
 
         .speaker-box.active {
-            animation: drumRollPulse 0.8s ease-in-out infinite;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 0 12px 40px rgba(0, 0, 0, 0.4);
-            transform: scale(1.2);
+            animation: speakingPulse 1.2s ease-in-out infinite;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 0 8px 20px rgba(0, 0, 0, 0.3);
+            transform: scale(1.15);
             z-index: 10;
         }
 
         .speaker-box.active::before {
             opacity: 1;
-            animation: drumRollShimmer 0.6s ease-in-out infinite;
+            animation: speakingBeat 0.6s ease-in-out infinite;
         }
 
         .speaker-box.active::after {
             content: '';
             position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            border-radius: 16px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-            animation: drumRollRipple 1.2s ease-out infinite;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border-radius: 14px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+            animation: speakingRhythm 1.8s ease-out infinite;
             pointer-events: none;
         }
 
-        @keyframes drumRollPulse {
+        @keyframes speakingPulse {
             0% {
-                transform: scale(1.2) rotate(0deg);
-                box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 0 12px 40px rgba(0, 0, 0, 0.4);
+                transform: scale(1.15);
+                box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 0 8px 20px rgba(0, 0, 0, 0.3);
             }
-            25% {
-                transform: scale(1.4) rotate(2deg);
-                box-shadow: 0 0 50px rgba(255, 255, 255, 0.8), 0 20px 60px rgba(0, 0, 0, 0.5);
+            20% {
+                transform: scale(1.25);
+                box-shadow: 0 0 35px rgba(255, 255, 255, 0.7), 0 12px 30px rgba(0, 0, 0, 0.4);
             }
-            50% {
-                transform: scale(1.3) rotate(-1deg);
-                box-shadow: 0 0 40px rgba(255, 255, 255, 0.7), 0 16px 50px rgba(0, 0, 0, 0.45);
+            40% {
+                transform: scale(1.2);
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 0 10px 25px rgba(0, 0, 0, 0.35);
             }
-            75% {
-                transform: scale(1.5) rotate(1deg);
-                box-shadow: 0 0 60px rgba(255, 255, 255, 0.9), 0 25px 70px rgba(0, 0, 0, 0.6);
+            60% {
+                transform: scale(1.3);
+                box-shadow: 0 0 40px rgba(255, 255, 255, 0.8), 0 15px 35px rgba(0, 0, 0, 0.45);
+            }
+            80% {
+                transform: scale(1.18);
+                box-shadow: 0 0 28px rgba(255, 255, 255, 0.55), 0 9px 22px rgba(0, 0, 0, 0.32);
             }
             100% {
-                transform: scale(1.2) rotate(0deg);
-                box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 0 12px 40px rgba(0, 0, 0, 0.4);
+                transform: scale(1.15);
+                box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 0 8px 20px rgba(0, 0, 0, 0.3);
             }
         }
 
-        @keyframes drumRollShimmer {
+        @keyframes speakingBeat {
             0% {
-                transform: translateX(-150%) skewX(-20deg);
-                opacity: 0;
+                transform: translateX(-100%) scaleX(0.8);
+                opacity: 0.3;
             }
             25% {
-                transform: translateX(-50%) skewX(-10deg);
+                transform: translateX(-50%) scaleX(1.2);
                 opacity: 0.8;
             }
             50% {
-                transform: translateX(0%) skewX(0deg);
+                transform: translateX(0%) scaleX(1);
                 opacity: 1;
             }
             75% {
-                transform: translateX(50%) skewX(10deg);
+                transform: translateX(50%) scaleX(1.2);
                 opacity: 0.8;
             }
             100% {
-                transform: translateX(150%) skewX(20deg);
-                opacity: 0;
+                transform: translateX(100%) scaleX(0.8);
+                opacity: 0.3;
             }
         }
 
-        @keyframes drumRollRipple {
+        @keyframes speakingRhythm {
             0% {
-                transform: scale(0.8);
-                opacity: 0.8;
+                transform: scale(0.9);
+                opacity: 0.6;
             }
-            50% {
-                transform: scale(1.2);
+            33% {
+                transform: scale(1.1);
+                opacity: 0.3;
+            }
+            66% {
+                transform: scale(1.05);
                 opacity: 0.4;
             }
             100% {
-                transform: scale(1.6);
+                transform: scale(1.3);
                 opacity: 0;
             }
         }
@@ -942,17 +950,17 @@
                 activeBox.classList.add('active');
                 activeSpeaker = speakerId;
                 
-                // Add dramatic drum roll effect when speaker becomes active
-                activeBox.style.transform = 'scale(1.5) rotate(5deg)';
-                activeBox.style.filter = 'brightness(1.3) contrast(1.2)';
+                // Add speaking rhythm effect when speaker becomes active
+                activeBox.style.transform = 'scale(1.3)';
+                activeBox.style.filter = 'brightness(1.2) saturate(1.1)';
                 
-                // Create particle explosion effect
-                createParticleExplosion(activeBox);
+                // Create speaking wave effect
+                createSpeakingWave(activeBox);
                 
                 setTimeout(() => {
                     activeBox.style.transform = '';
                     activeBox.style.filter = '';
-                }, 600);
+                }, 800);
                 
                 // Update status text with speaker info
                 const statusText = document.getElementById("status");
@@ -963,31 +971,31 @@
                 // Update active speaker indicator
                 const activeIndicator = document.getElementById("active-speaker-indicator");
                 if (activeIndicator) {
-                    activeIndicator.textContent = `Speaker ${speakerId} aktif`;
+                    activeIndicator.textContent = `Speaker ${speakerId} speaking with pulsing beat`;
                     activeIndicator.classList.add("active");
                 }
                 
-                // Add dramatic drum roll sound effect
+                // Add speaking rhythm sound effect
                 try {
                     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     
-                    // Create drum roll effect with multiple oscillators
-                    for (let i = 0; i < 3; i++) {
+                    // Create speaking rhythm with gentle pulses
+                    for (let i = 0; i < 2; i++) {
                         const oscillator = audioContext.createOscillator();
                         const gainNode = audioContext.createGain();
                         
                         oscillator.connect(gainNode);
                         gainNode.connect(audioContext.destination);
                         
-                        const startTime = audioContext.currentTime + (i * 0.1);
-                        oscillator.frequency.setValueAtTime(200 + (i * 100), startTime);
-                        oscillator.frequency.exponentialRampToValueAtTime(100 + (i * 50), startTime + 0.3);
+                        const startTime = audioContext.currentTime + (i * 0.2);
+                        oscillator.frequency.setValueAtTime(300 + (i * 50), startTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(200 + (i * 30), startTime + 0.4);
                         
-                        gainNode.gain.setValueAtTime(0.15, startTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+                        gainNode.gain.setValueAtTime(0.08, startTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
                         
                         oscillator.start(startTime);
-                        oscillator.stop(startTime + 0.3);
+                        oscillator.stop(startTime + 0.4);
                     }
                 } catch (e) {
                     // Ignore audio context errors (browser may block)
@@ -1274,48 +1282,45 @@
             }
         }
 
-        // Particle explosion effect for speaker activation
-        function createParticleExplosion(element) {
+        // Speaking wave effect for speaker activation
+        function createSpeakingWave(element) {
             const rect = element.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
             
-            // Create particles
-            for (let i = 0; i < 12; i++) {
-                const particle = document.createElement('div');
-                particle.style.position = 'fixed';
-                particle.style.left = centerX + 'px';
-                particle.style.top = centerY + 'px';
-                particle.style.width = '4px';
-                particle.style.height = '4px';
-                particle.style.borderRadius = '50%';
-                particle.style.backgroundColor = '#ffffff';
-                particle.style.boxShadow = '0 0 6px rgba(255, 255, 255, 0.8)';
-                particle.style.pointerEvents = 'none';
-                particle.style.zIndex = '1000';
-                particle.style.transition = 'all 0.6s ease-out';
+            // Create speaking wave rings
+            for (let i = 0; i < 3; i++) {
+                const wave = document.createElement('div');
+                wave.style.position = 'fixed';
+                wave.style.left = (centerX - 25) + 'px';
+                wave.style.top = (centerY - 25) + 'px';
+                wave.style.width = '50px';
+                wave.style.height = '50px';
+                wave.style.borderRadius = '50%';
+                wave.style.border = '2px solid rgba(255, 255, 255, 0.6)';
+                wave.style.backgroundColor = 'transparent';
+                wave.style.pointerEvents = 'none';
+                wave.style.zIndex = '1000';
+                wave.style.transition = 'all 1s ease-out';
                 
-                document.body.appendChild(particle);
+                document.body.appendChild(wave);
                 
-                // Animate particle
-                const angle = (i / 12) * Math.PI * 2;
-                const distance = 60 + Math.random() * 40;
-                const targetX = centerX + Math.cos(angle) * distance;
-                const targetY = centerY + Math.sin(angle) * distance;
-                
+                // Animate wave
                 setTimeout(() => {
-                    particle.style.left = targetX + 'px';
-                    particle.style.top = targetY + 'px';
-                    particle.style.opacity = '0';
-                    particle.style.transform = 'scale(0)';
-                }, 50);
+                    wave.style.width = '80px';
+                    wave.style.height = '80px';
+                    wave.style.left = (centerX - 40) + 'px';
+                    wave.style.top = (centerY - 40) + 'px';
+                    wave.style.opacity = '0';
+                    wave.style.borderWidth = '1px';
+                }, i * 200);
                 
-                // Remove particle after animation
+                // Remove wave after animation
                 setTimeout(() => {
-                    if (particle.parentNode) {
-                        particle.parentNode.removeChild(particle);
+                    if (wave.parentNode) {
+                        wave.parentNode.removeChild(wave);
                     }
-                }, 700);
+                }, 1200 + (i * 200));
             }
         }
 
