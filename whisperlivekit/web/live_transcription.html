@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Transkripsi Audio Langsung</title>
+    <title>Rekam</title>
     <style>
         * {
             margin: 0;
@@ -251,14 +251,14 @@
         }
 
         .speaker-box {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -300,11 +300,11 @@
         .speaker-box.active::after {
             content: '';
             position: absolute;
-            top: -8px;
-            left: -8px;
-            right: -8px;
-            bottom: -8px;
-            border-radius: 14px;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
             background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
             animation: speakingRhythm 1.8s ease-out infinite;
             pointer-events: none;
@@ -650,7 +650,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎤 Transkripsi Audio Langsung</h1>
+            <h1>🎤 Rekam </h1>
             <p>Klik tombol untuk memulai transkripsi audio real-time</p>
         </div>
 
@@ -692,7 +692,7 @@
 
         <div class="speaker-boxes-container">
             <div class="speaker-boxes-header">
-                <span>🎤 Speaker Boxes</span>
+                <span>🎤 Identifikasi Speaker </span>
                 <span id="active-speaker-indicator" class="active-speaker-indicator">Tidak ada speaker aktif</span>
             </div>
             <div class="speaker-boxes-grid">
@@ -1299,10 +1299,10 @@
             for (let i = 0; i < 3; i++) {
                 const wave = document.createElement('div');
                 wave.style.position = 'fixed';
-                wave.style.left = (centerX - 25) + 'px';
-                wave.style.top = (centerY - 25) + 'px';
-                wave.style.width = '50px';
-                wave.style.height = '50px';
+                wave.style.left = (centerX - 30) + 'px';
+                wave.style.top = (centerY - 30) + 'px';
+                wave.style.width = '60px';
+                wave.style.height = '60px';
                 wave.style.borderRadius = '50%';
                 wave.style.border = '2px solid rgba(255, 255, 255, 0.6)';
                 wave.style.backgroundColor = 'transparent';
@@ -1314,10 +1314,10 @@
                 
                 // Animate wave
                 setTimeout(() => {
-                    wave.style.width = '80px';
-                    wave.style.height = '80px';
-                    wave.style.left = (centerX - 40) + 'px';
-                    wave.style.top = (centerY - 40) + 'px';
+                    wave.style.width = '100px';
+                    wave.style.height = '100px';
+                    wave.style.left = (centerX - 50) + 'px';
+                    wave.style.top = (centerY - 50) + 'px';
                     wave.style.opacity = '0';
                     wave.style.borderWidth = '1px';
                 }, i * 200);
