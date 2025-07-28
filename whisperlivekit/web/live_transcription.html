@@ -1006,31 +1006,7 @@
                     activeIndicator.classList.add("active");
                 }
                 
-                // Add speaking rhythm sound effect
-                try {
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    
-                    // Create speaking rhythm with gentle pulses
-                    for (let i = 0; i < 2; i++) {
-                        const oscillator = audioContext.createOscillator();
-                        const gainNode = audioContext.createGain();
-                        
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioContext.destination);
-                        
-                        const startTime = audioContext.currentTime + (i * 0.2);
-                        oscillator.frequency.setValueAtTime(300 + (i * 50), startTime);
-                        oscillator.frequency.exponentialRampToValueAtTime(200 + (i * 30), startTime + 0.4);
-                        
-                        gainNode.gain.setValueAtTime(0.08, startTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
-                        
-                        oscillator.start(startTime);
-                        oscillator.stop(startTime + 0.4);
-                    }
-                } catch (e) {
-                    // Ignore audio context errors (browser may block)
-                }
+                // Audio effect removed - keeping only visual pulsing animation
             } else {
                 activeSpeaker = null;
                 // Reset status text
