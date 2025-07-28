@@ -217,41 +217,183 @@
             color: #2c3e50;
             margin-bottom: 10px;
             font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .active-speaker-indicator {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-weight: normal;
+            transition: all 0.3s ease;
+        }
+
+        .active-speaker-indicator.active {
+            color: #27ae60;
+            font-weight: 600;
+            animation: pulse 1s ease-in-out infinite;
         }
 
         .speaker-boxes-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 15px;
             margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
         }
 
         .speaker-box {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
-            color: #2c3e50;
-            border: 2px solid transparent;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 3px solid transparent;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .speaker-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .speaker-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
         }
 
         .speaker-box.active {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            animation: speakerPulse 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 8px 25px rgba(0, 0, 0, 0.3);
+            transform: scale(1.1);
+        }
+
+        .speaker-box.active::before {
+            opacity: 1;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes speakerPulse {
+            0% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 8px 25px rgba(0, 0, 0, 0.3);
+                transform: scale(1.1);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.5), 0 12px 35px rgba(0, 0, 0, 0.4);
+                transform: scale(1.15);
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 8px 25px rgba(0, 0, 0, 0.3);
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Speaker box colors with gradients */
+        .speaker-1 {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
             color: white;
-            border-color: #2980b9;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .speaker-2 {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .speaker-3 {
+            background: linear-gradient(135deg, #45b7d1, #96c93d);
+            color: white;
+        }
+
+        .speaker-4 {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .speaker-5 {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        .speaker-6 {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .speaker-7 {
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+            color: white;
+        }
+
+        /* Active speaker glow effects */
+        .speaker-1.active {
+            box-shadow: 0 0 25px rgba(255, 107, 107, 0.6), 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .speaker-2.active {
+            box-shadow: 0 0 25px rgba(78, 205, 196, 0.6), 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .speaker-3.active {
+            box-shadow: 0 0 25px rgba(69, 183, 209, 0.6), 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .speaker-4.active {
+            box-shadow: 0 0 25px rgba(243, 156, 18, 0.6), 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .speaker-5.active {
+            box-shadow: 0 0 25px rgba(155, 89, 182, 0.6), 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .speaker-6.active {
+            box-shadow: 0 0 25px rgba(231, 76, 60, 0.6), 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .speaker-7.active {
+            box-shadow: 0 0 25px rgba(26, 188, 156, 0.6), 0 8px 25px rgba(0, 0, 0, 0.3);
         }
 
         .transcript-container {
@@ -483,7 +625,10 @@
         <div id="status">Klik tombol untuk memulai transkripsi</div>
 
         <div class="speaker-boxes-container">
-            <div class="speaker-boxes-header">🎤 Speaker Boxes <span id="active-speaker-status" style="font-size: 0.8rem; color: #7f8c8d; font-weight: normal;">(Klik untuk test)</span></div>
+            <div class="speaker-boxes-header">
+                <span>🎤 Speaker Boxes</span>
+                <span id="active-speaker-indicator" class="active-speaker-indicator">Tidak ada speaker aktif</span>
+            </div>
             <div class="speaker-boxes-grid">
                 <div class="speaker-box speaker-1" data-speaker="1">S1</div>
                 <div class="speaker-box speaker-2" data-speaker="2">S2</div>
@@ -660,8 +805,25 @@
                 
                 const speakerSpan = document.createElement("span");
                 speakerSpan.style.fontWeight = "bold";
-                speakerSpan.style.color = "#3498db";
-                speakerSpan.textContent = `S${line.speaker || '?'}: `;
+                speakerSpan.style.fontSize = "1.1rem";
+                
+                // Color code speakers based on their ID
+                const speakerColors = {
+                    1: "#ff6b6b",
+                    2: "#4ecdc4", 
+                    3: "#45b7d1",
+                    4: "#f39c12",
+                    5: "#9b59b6",
+                    6: "#e74c3c",
+                    7: "#1abc9c"
+                };
+                
+                const speakerId = line.speaker || '?';
+                const speakerColor = speakerColors[speakerId] || "#3498db";
+                speakerSpan.style.color = speakerColor;
+                
+                // Add speaker icon and make it more prominent
+                speakerSpan.innerHTML = `🎤 S${speakerId}: `;
                 
                 const textSpan = document.createElement("span");
                 textSpan.textContent = line.text;
@@ -669,6 +831,13 @@
                 lineDiv.appendChild(speakerSpan);
                 lineDiv.appendChild(textSpan);
                 linesTranscriptDiv.appendChild(lineDiv);
+                
+                // Highlight the line if it's from the currently active speaker
+                if (speakerId == activeSpeaker) {
+                    lineDiv.style.background = `linear-gradient(90deg, ${speakerColor}20, transparent)`;
+                    lineDiv.style.borderLeft = `4px solid ${speakerColor}`;
+                    lineDiv.style.animation = "fadeIn 0.5s ease-in";
+                }
             });
             
             linesTranscriptDiv.scrollTop = linesTranscriptDiv.scrollHeight;
@@ -697,17 +866,77 @@
         }
 
         function updateActiveSpeaker(speakerId) {
-            // Remove active class from all speaker boxes
+            // Remove active class from all speaker boxes with smooth transition
             document.querySelectorAll('.speaker-box').forEach(box => {
-                box.classList.remove('active');
+                if (box.classList.contains('active')) {
+                    box.classList.remove('active');
+                    // Add a brief transition effect
+                    box.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        box.style.transform = '';
+                    }, 200);
+                }
             });
             
-            // Add active class to current speaker
+            // Add active class to current speaker with enhanced effects
             if (speakerId && speakerBoxes[speakerId]) {
-                speakerBoxes[speakerId].classList.add('active');
+                const activeBox = speakerBoxes[speakerId];
+                activeBox.classList.add('active');
                 activeSpeaker = speakerId;
+                
+                // Add a bounce effect when speaker becomes active
+                activeBox.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    activeBox.style.transform = '';
+                }, 300);
+                
+                // Update status text with speaker info
+                const statusText = document.getElementById("status");
+                if (statusText && isRecording) {
+                    statusText.textContent = `🎤 Speaker ${speakerId} sedang berbicara...`;
+                }
+                
+                // Update active speaker indicator
+                const activeIndicator = document.getElementById("active-speaker-indicator");
+                if (activeIndicator) {
+                    activeIndicator.textContent = `Speaker ${speakerId} aktif`;
+                    activeIndicator.classList.add("active");
+                }
+                
+                // Add a subtle sound effect (optional - browser may block)
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+                    
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } catch (e) {
+                    // Ignore audio context errors (browser may block)
+                }
             } else {
                 activeSpeaker = null;
+                // Reset status text
+                const statusText = document.getElementById("status");
+                if (statusText && isRecording) {
+                    statusText.textContent = "Sedang merekam...";
+                }
+                
+                // Reset active speaker indicator
+                const activeIndicator = document.getElementById("active-speaker-indicator");
+                if (activeIndicator) {
+                    activeIndicator.textContent = "Tidak ada speaker aktif";
+                    activeIndicator.classList.remove("active");
+                }
             }
         }
 
