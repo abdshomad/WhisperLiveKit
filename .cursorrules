@@ -1,0 +1,35 @@
+# Cursor Rules for WhisperLiveKit Project
+
+## Virtual Environment
+- Always use `uv .venv` to activate the virtual environment before running the app
+- Use `uv run` or `uv pip` for package management
+- Ensure the virtual environment is activated before running any Python commands
+
+## GPU Usage
+- Always use GPU for WhisperLiveKit operations
+- Set CUDA_VISIBLE_DEVICES if needed to specify GPU
+- Use torch.cuda.is_available() checks in code
+- Prefer GPU-accelerated operations over CPU
+
+## GPU Monitoring
+- Always check GPU status with `nvidia-smi` before running the app
+- Monitor GPU memory usage during operation
+- Verify CUDA is properly installed and accessible
+- Check for GPU availability before starting WhisperLiveKit
+
+## Code Style
+- Follow PEP 8 for Python code
+- Use type hints where appropriate
+- Add docstrings for functions and classes
+- Handle GPU errors gracefully
+
+## Dependencies
+- Use uv for dependency management
+- Keep requirements.txt or pyproject.toml updated
+- Install GPU-specific packages (torch with CUDA, etc.)
+
+## Running the App
+1. Activate virtual environment: `source .venv/bin/activate` or `uv run`
+2. Check GPU: `nvidia-smi`
+3. Run the app with GPU support
+4. Monitor GPU usage during operation 

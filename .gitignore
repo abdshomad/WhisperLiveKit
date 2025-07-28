@@ -109,6 +109,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# uv package manager
+uv.lock
+*.lock
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -128,7 +132,7 @@ dmypy.json
 .pyre/
 
 *.wav
-run_*.sh
+run.sh
 
 # Downloaded models
 *.pt 
@@ -138,3 +142,4 @@ test_*.py
 launch.json
 .DS_Store
 test/*
+*.pid
