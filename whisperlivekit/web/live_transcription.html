@@ -510,6 +510,8 @@
             border-left-color: #95a5a6;
         }
 
+
+
         /* Recording Management Styles */
         .recordings-section {
             background: rgba(255, 255, 255, 0.9);
@@ -932,17 +934,38 @@
         function updateBufferTranscription(text) {
             if (!text) return;
             
-            const bufferDiv = document.createElement("div");
-            bufferDiv.className = "line apercu";
-            bufferDiv.textContent = `Buffer: ${text}`;
-            
-            // Remove previous buffer line if exists
-            const existingBuffer = linesTranscriptDiv.querySelector(".line.apercu");
-            if (existingBuffer) {
-                existingBuffer.remove();
+            // Find the last speaker line to append buffer text
+            const lastLine = linesTranscriptDiv.querySelector(".line:last-child");
+            if (lastLine && !lastLine.classList.contains("buffer-transcription")) {
+                // Create colored buffer text with different colors for each word
+                const words = text.split(' ');
+                const coloredWords = words.map((word, index) => {
+                    const colors = [
+                        '#ff6b6b', '#4ecdc4', '#45b7d1', '#f39c12', 
+                        '#9b59b6', '#e74c3c', '#1abc9c', '#3498db',
+                        '#e67e22', '#2ecc71', '#f1c40f', '#8e44ad'
+                    ];
+                    const color = colors[index % colors.length];
+                    return `<span style="color: ${color}; font-weight: 600;">${word}</span>`;
+                });
+                
+                // Append buffer text to the existing line
+                const bufferSpan = document.createElement("span");
+                bufferSpan.innerHTML = ` <span style="color: #7f8c8d; font-style: italic; margin-left: 8px; margin-right: 4px;">|</span>${coloredWords.join(' ')}`;
+                lastLine.appendChild(bufferSpan);
+                
+                // Remove any existing buffer text from previous updates
+                const existingBufferSpans = lastLine.querySelectorAll("span span");
+                if (existingBufferSpans.length > 1) {
+                    // Keep only the first span (speaker text) and the latest buffer
+                    const speakerSpan = lastLine.querySelector("span:first-child");
+                    const newBufferSpan = lastLine.querySelector("span:last-child");
+                    lastLine.innerHTML = "";
+                    lastLine.appendChild(speakerSpan);
+                    lastLine.appendChild(newBufferSpan);
+                }
             }
             
-            linesTranscriptDiv.appendChild(bufferDiv);
             linesTranscriptDiv.scrollTop = linesTranscriptDiv.scrollHeight;
         }
 
