@@ -505,10 +505,25 @@ if [ $# -eq 0 ]; then
     echo ""
     
     # Start with default parameters in background
+    # Extract actual port from arguments
+    ACTUAL_PORT=$DEFAULT_PORT
+    PREV_ARG=""
+    # Check command line arguments first, then DEFAULT_ARGS
+    for arg in "$@" $DEFAULT_ARGS; do
+        if [[ $arg == --port ]]; then
+            PREV_ARG=$arg
+            continue
+        elif [[ $arg =~ ^[0-9]+$ ]] && [[ $PREV_ARG == --port ]]; then
+            ACTUAL_PORT=$arg
+            break
+        fi
+        PREV_ARG=$arg
+    done
+    
     # Add script identification to log
     echo "=== SCRIPT: $CALLING_SCRIPT ===" >> "$LOG_FILE"
     echo "=== TIMESTAMP: $(date) ===" >> "$LOG_FILE"
-    echo "=== CONFIG: Model=$DEFAULT_MODEL, Host=$DEFAULT_HOST, Port=$DEFAULT_PORT, Language=$DEFAULT_LANGUAGE, Task=$DEFAULT_TASK, Backend=$DEFAULT_BACKEND, Diarization=$DEFAULT_DIARIZATION ===" >> "$LOG_FILE"
+    echo "=== CONFIG: Model=$DEFAULT_MODEL, Host=$DEFAULT_HOST, Port=$ACTUAL_PORT, Language=$DEFAULT_LANGUAGE, Task=$DEFAULT_TASK, Backend=$DEFAULT_BACKEND, Diarization=$DEFAULT_DIARIZATION ===" >> "$LOG_FILE"
     echo "=== GPU: CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, CT2_CUDA_DEVICES=$CT2_CUDA_DEVICES ===" >> "$LOG_FILE"
     echo "=== ARGS: $DEFAULT_ARGS ===" >> "$LOG_FILE"
     echo "==========================================" >> "$LOG_FILE"
@@ -554,10 +569,24 @@ else
     echo "Arguments: ${SERVER_ARGS[*]}"
     echo ""
     
+    # Extract actual port from arguments
+    ACTUAL_PORT=$DEFAULT_PORT
+    PREV_ARG=""
+    for arg in "${SERVER_ARGS[@]}"; do
+        if [[ $arg == --port ]]; then
+            # Next argument is the port number
+            continue
+        elif [[ $arg =~ ^[0-9]+$ ]] && [[ $PREV_ARG == --port ]]; then
+            ACTUAL_PORT=$arg
+            break
+        fi
+        PREV_ARG=$arg
+    done
+    
     # Add script identification to log
     echo "=== SCRIPT: $CALLING_SCRIPT ===" >> "$LOG_FILE"
     echo "=== TIMESTAMP: $(date) ===" >> "$LOG_FILE"
-    echo "=== CONFIG: Model=$DEFAULT_MODEL, Host=$DEFAULT_HOST, Port=$DEFAULT_PORT, Language=$DEFAULT_LANGUAGE, Task=$DEFAULT_TASK, Backend=$DEFAULT_BACKEND, Diarization=$DEFAULT_DIARIZATION ===" >> "$LOG_FILE"
+    echo "=== CONFIG: Model=$DEFAULT_MODEL, Host=$DEFAULT_HOST, Port=$ACTUAL_PORT, Language=$DEFAULT_LANGUAGE, Task=$DEFAULT_TASK, Backend=$DEFAULT_BACKEND, Diarization=$DEFAULT_DIARIZATION ===" >> "$LOG_FILE"
     echo "=== GPU: CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, CT2_CUDA_DEVICES=$CT2_CUDA_DEVICES ===" >> "$LOG_FILE"
     echo "=== ARGS: ${SERVER_ARGS[*]} ===" >> "$LOG_FILE"
     echo "==========================================" >> "$LOG_FILE"

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Recordings Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: #f0f0f0;
+        }
+        .tab.active {
+            background: #007bff;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .recording-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .save-form {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .save-form input {
+            padding: 8px;
+            margin-right: 10px;
+            width: 300px;
+        }
+        .save-form button {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .recording-actions button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .btn-play { background: #28a745; color: white; }
+        .btn-edit { background: #ffc107; color: black; }
+        .btn-delete { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Test Recordings Interface</h1>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('live')">Live Transcription</div>
+        <div class="tab" onclick="switchTab('recordings')">Saved Recordings</div>
+    </div>
+
+    <div id="live-tab" class="tab-content active">
+        <h2>Live Transcription</h2>
+        <p>This is a test interface for the live transcription feature.</p>
+        
+        <div class="save-form" id="saveSection" style="display: none;">
+            <h3>Save Recording</h3>
+            <input type="text" id="recordingTitle" placeholder="Enter recording title..." />
+            <button onclick="saveRecording()">Save Recording</button>
+        </div>
+        
+        <button onclick="testSave()">Test Save Recording</button>
+    </div>
+
+    <div id="recordings-tab" class="tab-content">
+        <h2>Saved Recordings</h2>
+        <div id="recordingsList">
+            <p>Loading recordings...</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Load recordings if switching to recordings tab
+            if (tabName === 'recordings') {
+                loadRecordings();
+            }
+        }
+
+        async function testSave() {
+            const testData = {
+                title: "Test Recording " + new Date().toLocaleString(),
+                transcript: "This is a test transcript for the recording feature. It contains some sample text to verify the save functionality.",
+                duration: 180,
+                model_info: "test-model",
+                language: "en",
+                diarization_enabled: true
+            };
+            
+            try {
+                const response = await fetch('/api/recordings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert("Test recording saved successfully!");
+                    document.getElementById('saveSection').style.display = "block";
+                    document.getElementById('recordingTitle').value = testData.title;
+                } else {
+                    alert("Error saving recording: " + result.message);
+                }
+            } catch (error) {
+                console.error("Error saving recording:", error);
+                alert("Error saving recording. Please try again.");
+            }
+        }
+
+        async function saveRecording() {
+            const title = document.getElementById('recordingTitle').value.trim();
+            if (!title) {
+                alert("Please enter a title for the recording.");
+                return;
+            }
+            
+            const testData = {
+                title: title,
+                transcript: "This is a saved transcript for: " + title,
+                duration: 120,
+                model_info: "test-model",
+                language: "en",
+                diarization_enabled: true
+            };
+            
+            try {
+                const response = await fetch('/api/recordings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert("Recording saved successfully!");
+                    document.getElementById('saveSection').style.display = "none";
+                } else {
+                    alert("Error saving recording: " + result.message);
+                }
+            } catch (error) {
+                console.error("Error saving recording:", error);
+                alert("Error saving recording. Please try again.");
+            }
+        }
+
+        async function loadRecordings() {
+            const recordingsList = document.getElementById("recordingsList");
+            recordingsList.innerHTML = '<p>Loading recordings...</p>';
+            
+            try {
+                const response = await fetch('/api/recordings');
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.recordings.length === 0) {
+                        recordingsList.innerHTML = '<p>No recordings found.</p>';
+                    } else {
+                        recordingsList.innerHTML = result.recordings.map(recording => `
+                            <div class="recording-card">
+                                <h4>${recording.title}</h4>
+                                <p><strong>Duration:</strong> ${Math.floor(recording.duration / 60)}:${(recording.duration % 60).toString().padStart(2, '0')} | 
+                                <strong>Created:</strong> ${new Date(recording.created_at).toLocaleString()} | 
+                                <strong>Model:</strong> ${recording.model_info || 'Unknown'}</p>
+                                <p><strong>Transcript:</strong> ${recording.transcript}</p>
+                                <div class="recording-actions">
+                                    <button class="btn-play" onclick="playRecording(${recording.id})">Play</button>
+                                    <button class="btn-edit" onclick="editRecording(${recording.id}, '${recording.title}')">Edit Title</button>
+                                    <button class="btn-delete" onclick="deleteRecording(${recording.id})">Delete</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    recordingsList.innerHTML = '<p style="color: red;">Error loading recordings.</p>';
+                }
+            } catch (error) {
+                console.error("Error loading recordings:", error);
+                recordingsList.innerHTML = '<p style="color: red;">Error loading recordings.</p>';
+            }
+        }
+
+        async function playRecording(recordingId) {
+            try {
+                const response = await fetch(`/api/recordings/${recordingId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Playing recording: ${result.recording.title}\n\nTranscript: ${result.recording.transcript}`);
+                } else {
+                    alert("Error loading recording details.");
+                }
+            } catch (error) {
+                console.error("Error loading recording:", error);
+                alert("Error loading recording details.");
+            }
+        }
+
+        async function editRecording(recordingId, currentTitle) {
+            const newTitle = prompt("Enter new title:", currentTitle);
+            if (newTitle && newTitle.trim() && newTitle !== currentTitle) {
+                try {
+                    const response = await fetch(`/api/recordings/${recordingId}/title`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ title: newTitle.trim() })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert("Title updated successfully!");
+                        loadRecordings(); // Reload the list
+                    } else {
+                        alert("Error updating title: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("Error updating title:", error);
+                    alert("Error updating title. Please try again.");
+                }
+            }
+        }
+
+        async function deleteRecording(recordingId) {
+            if (confirm("Are you sure you want to delete this recording?")) {
+                try {
+                    const response = await fetch(`/api/recordings/${recordingId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert("Recording deleted successfully!");
+                        loadRecordings(); // Reload the list
+                    } else {
+                        alert("Error deleting recording: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("Error deleting recording:", error);
+                    alert("Error deleting recording. Please try again.");
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

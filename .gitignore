@@ -142,4 +142,5 @@ test_*.py
 launch.json
 .DS_Store
 test/*
+recordings/*
 *.pid

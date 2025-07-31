@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 def get_web_interface_html():
     """Loads the HTML for the web interface using importlib.resources."""
     try:
-        with resources.files('whisperlivekit.web').joinpath('live_transcription_modern.html').open('r', encoding='utf-8') as f:
+        with resources.files('whisperlivekit.web').joinpath('live_transcription_with_recordings.html').open('r', encoding='utf-8') as f:
             return f.read()
     except Exception as e:
         logger.error(f"Error loading web interface HTML: {e}")
