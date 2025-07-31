@@ -379,12 +379,59 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 1rem;
+            padding: 1.5rem;
             font-size: 12px;
             color: #4a5568;
-            text-align: center;
             z-index: 1000;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 2rem;
+        }
+
+        .footer-settings {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .footer-setting {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .footer-setting label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-setting select,
+        .footer-setting input {
+            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            min-width: 120px;
+        }
+
+        .footer-setting select:focus,
+        .footer-setting input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
         }
 
         .server-info {
@@ -392,10 +439,34 @@
             word-break: break-all;
             line-height: 1.4;
             font-weight: 500;
+            text-align: center;
+            flex: 1;
         }
 
         body {
-            margin-bottom: 80px;
+            margin-bottom: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .footer-settings {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .footer-setting select,
+            .footer-setting input {
+                min-width: 200px;
+            }
+
+            body {
+                margin-bottom: 160px;
+            }
         }
 
         /* Responsive design */
@@ -471,23 +542,7 @@
                     </button>
                 </div>
 
-                <div class="settings-container">
-                    <div class="settings">
-                        <label for="chunkSelector">Chunk Size (ms)</label>
-                        <select id="chunkSelector">
-                            <option value="500">500 ms</option>
-                            <option value="1000" selected>1000 ms</option>
-                            <option value="2000">2000 ms</option>
-                            <option value="3000">3000 ms</option>
-                            <option value="4000">4000 ms</option>
-                            <option value="5000">5000 ms</option>
-                        </select>
-                    </div>
-                    <div class="settings">
-                        <label for="websocketInput">WebSocket URL</label>
-                        <input id="websocketInput" type="text" />
-                    </div>
-                </div>
+
             </div>
 
             <div id="status">Click to start transcription</div>
@@ -499,8 +554,27 @@
     </div>
 
     <div class="server-info-footer" id="serverInfo">
-        <div class="server-info">
-            <span class="spinner"></span> Loading server information...
+        <div class="footer-content">
+            <div class="footer-settings">
+                <div class="footer-setting">
+                    <label for="chunkSelector">Chunk Size</label>
+                    <select id="chunkSelector">
+                        <option value="500">500 ms</option>
+                        <option value="1000" selected>1000 ms</option>
+                        <option value="2000">2000 ms</option>
+                        <option value="3000">3000 ms</option>
+                        <option value="4000">4000 ms</option>
+                        <option value="5000">5000 ms</option>
+                    </select>
+                </div>
+                <div class="footer-setting">
+                    <label for="websocketInput">WebSocket URL</label>
+                    <input id="websocketInput" type="text" />
+                </div>
+            </div>
+            <div class="server-info">
+                <span class="spinner"></span> Loading server information...
+            </div>
         </div>
     </div>
 
@@ -893,16 +967,20 @@
         function updateServerInfo(serverInfo) {
             const footer = document.getElementById('serverInfo');
             if (footer && serverInfo) {
-                footer.innerHTML = `
-                    <div class="server-info">
-                        <strong>Server:</strong> ${serverInfo.script_name || 'Unknown'} 
-                        | <strong>Model:</strong> ${serverInfo.model || 'Unknown'} 
-                        | <strong>Language:</strong> ${serverInfo.language || 'Unknown'} 
-                        | <strong>Diarization:</strong> ${serverInfo.diarization ? 'Enabled' : 'Disabled'}
-                        ${serverInfo.backend ? ` | <strong>Backend:</strong> ${serverInfo.backend}` : ''}
-                        ${serverInfo.task ? ` | <strong>Task:</strong> ${serverInfo.task}` : ''}
-                    </div>
-                `;
+                const footerContent = footer.querySelector('.footer-content');
+                if (footerContent) {
+                    const serverInfoDiv = footerContent.querySelector('.server-info');
+                    if (serverInfoDiv) {
+                        serverInfoDiv.innerHTML = `
+                            <strong>Server:</strong> ${serverInfo.script_name || 'Unknown'} 
+                            | <strong>Model:</strong> ${serverInfo.model || 'Unknown'} 
+                            | <strong>Language:</strong> ${serverInfo.language || 'Unknown'} 
+                            | <strong>Diarization:</strong> ${serverInfo.diarization ? 'Enabled' : 'Disabled'}
+                            ${serverInfo.backend ? ` | <strong>Backend:</strong> ${serverInfo.backend}` : ''}
+                            ${serverInfo.task ? ` | <strong>Task:</strong> ${serverInfo.task}` : ''}
+                        `;
+                    }
+                }
             }
         }
 
