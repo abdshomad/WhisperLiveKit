@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}WhisperLiveKit{% endblock %}</title>
+    
+    <!-- Meta tags -->
+    <meta name="description" content="Real-time, Fully Local Whisper's Speech-to-Text and Speaker Diarization">
+    <meta name="keywords" content="whisper, speech-to-text, real-time, diarization, fastapi">
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', path='/css/main.css') }}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <i class="fas fa-microphone text-blue-600 text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold text-gray-900">WhisperLiveKit</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <nav class="flex items-center space-x-4">
+                        <a href="/" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                            <i class="fas fa-home mr-1"></i>Home
+                        </a>
+                        <a href="/logs" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                            <i class="fas fa-file-alt mr-1"></i>Logs
+                        </a>
+                        <a href="/docs" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                            <i class="fas fa-book mr-1"></i>API Docs
+                        </a>
+                    </nav>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 rounded-full {% if gpu_status.cuda_available %}bg-green-500{% else %}bg-red-500{% endif %}"></div>
+                        <span class="text-sm text-gray-600">
+                            {% if gpu_status.cuda_available %}
+                                GPU: {{ gpu_status.device_name }}
+                            {% else %}
+                                CPU Mode
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-500">
+                    <span>Model: {{ server_info.model }}</span>
+                    <span class="mx-2">•</span>
+                    <span>Language: {{ server_info.language }}</span>
+                    {% if server_info.diarization %}
+                        <span class="mx-2">•</span>
+                        <span>Diarization: Enabled</span>
+                    {% endif %}
+                </div>
+                <div class="text-sm text-gray-500">
+                    <span>Backend: {{ server_info.backend }}</span>
+                    <span class="mx-2">•</span>
+                    <span>Task: {{ server_info.task }}</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+    <script src="{{ url_for('static', path='/js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

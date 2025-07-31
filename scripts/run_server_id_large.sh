@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # WhisperLiveKit Indonesian
-# Network accessible server for Bahasa Indonesia
+# High accuracy with large model for Bahasa Indonesia
 
 # Configuration - easily changeable
-SCRIPT_NAME="WhisperLiveKit Indonesian Network Server (H100x2)"
-SCRIPT_DESC="This script runs WhisperLiveKit server optimized for Network accessible server for Bahasa Indonesia."
-MODEL="medium"
+SCRIPT_NAME="WhisperLiveKit Indonesian Large Server (H100x2)"
+SCRIPT_DESC="This script runs WhisperLiveKit server optimized for High accuracy with large model for Bahasa Indonesia."
+MODEL="large-v3"
 LANGUAGE="id"
 DIARIZATION="enabled"
-CONFIG_DESC="- Model: medium
-- Model: medium (balanced speed/accuracy)
+CONFIG_DESC="- Model: large-v3
+- Model: large-v3 (highest accuracy, slower processing)
 - Language: Indonesian (id)
 - Diarization: enabled (speaker identification)
 - Background execution with PID management"
@@ -20,10 +20,10 @@ USAGE_EXAMPLES="  $0                                    # Use default settings
   $0 --stop                           # Stop server
   $0 --restart                        # Restart server
   $0 --help                           # Show this help"
-RECOMMENDED_USE="🇮🇩 INDONESIAN Network: Network accessible server for Bahasa Indonesia
+RECOMMENDED_USE="🇮🇩 INDONESIAN Large: High accuracy with large model for Bahasa Indonesia
      Use this for Indonesian applications."
 
-exec ./run_server.sh \
+exec ./scripts/run_server.sh \
     --calling-script="$0" \
     --script-name="$SCRIPT_NAME" \
     --script-desc="$SCRIPT_DESC" \

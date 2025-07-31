@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - WhisperLiveKit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .log-entry { font-family: 'Courier New', monospace; font-size: 12px; }
+        .log-error { color: #ef4444; }
+        .log-warning { color: #f59e0b; }
+        .log-info { color: #3b82f6; }
+        .log-debug { color: #6b7280; }
+        .log-success { color: #10b981; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">{{ title }}</h1>
+                <a href="/" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    ← Back to Main
+                </a>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex gap-4 items-center">
+                    <label for="lines" class="text-sm font-medium text-gray-700">Lines to show:</label>
+                    <select id="lines" class="border border-gray-300 rounded px-3 py-1">
+                        <option value="50">50</option>
+                        <option value="100" selected>100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                    </select>
+                    <button onclick="loadLogs()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        Refresh
+                    </button>
+                    <button onclick="clearLogs()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                        Clear Display
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-gray-900 text-green-400 p-4 rounded-lg h-96 overflow-y-auto" id="logOutput">
+                <div class="text-center text-gray-500">Loading logs...</div>
+            </div>
+            
+            <div class="mt-4 text-sm text-gray-600">
+                <div id="logInfo">Log file: Loading...</div>
+                <div id="logStats">Total lines: Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadLogs() {
+            const lines = document.getElementById('lines').value;
+            const output = document.getElementById('logOutput');
+            const info = document.getElementById('logInfo');
+            const stats = document.getElementById('logStats');
+            
+            output.innerHTML = '<div class="text-center text-gray-500">Loading logs...</div>';
+            
+            fetch(`/api/logs?lines=${lines}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        output.innerHTML = `<div class="text-red-500">Error: ${data.error}</div>`;
+                        return;
+                    }
+                    
+                    info.textContent = `Log file: ${data.log_file}`;
+                    stats.textContent = `Total lines: ${data.total_lines} | Showing: ${data.recent_lines.length} | Last updated: ${new Date(data.timestamp).toLocaleString()}`;
+                    
+                    if (data.recent_lines.length === 0) {
+                        output.innerHTML = '<div class="text-center text-gray-500">No log entries found</div>';
+                        return;
+                    }
+                    
+                    const logHtml = data.recent_lines.map(line => {
+                        const trimmedLine = line.trim();
+                        let className = 'log-info';
+                        
+                        if (trimmedLine.includes('ERROR') || trimmedLine.includes('❌')) {
+                            className = 'log-error';
+                        } else if (trimmedLine.includes('WARNING') || trimmedLine.includes('⚠️')) {
+                            className = 'log-warning';
+                        } else if (trimmedLine.includes('DEBUG')) {
+                            className = 'log-debug';
+                        } else if (trimmedLine.includes('✅') || trimmedLine.includes('SUCCESS')) {
+                            className = 'log-success';
+                        }
+                        
+                        return `<div class="log-entry ${className}">${line}</div>`;
+                    }).join('');
+                    
+                    output.innerHTML = logHtml;
+                    output.scrollTop = output.scrollHeight;
+                })
+                .catch(error => {
+                    output.innerHTML = `<div class="text-red-500">Failed to load logs: ${error.message}</div>`;
+                });
+        }
+        
+        function clearLogs() {
+            document.getElementById('logOutput').innerHTML = '<div class="text-center text-gray-500">Logs cleared</div>';
+            document.getElementById('logInfo').textContent = 'Log file: -';
+            document.getElementById('logStats').textContent = 'Total lines: -';
+        }
+        
+        // Auto-refresh every 5 seconds
+        setInterval(loadLogs, 5000);
+        
+        // Load logs on page load
+        document.addEventListener('DOMContentLoaded', loadLogs);
+    </script>
+</body>
+</html> 

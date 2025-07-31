@@ -21,4 +21,4 @@ RECOMMENDED_USE="🎯 ACCURACY OPTIMIZED: Highest accuracy with speaker identifi
    Use this for applications where accuracy is critical."
 
 # Execute the base script with our configuration
-exec ./run_server.sh "$@" 
+exec ./scripts/run_server.sh "$@" 

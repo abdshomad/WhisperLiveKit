@@ -21,4 +21,4 @@ RECOMMENDED_USE="🇺🇸 ENGLISH OPTIMIZED: Best for English content
    Use this for English-only applications."
 
 # Execute the base script with our configuration
-exec ./run_server.sh "$@" 
+exec ./scripts/run_server.sh "$@" 

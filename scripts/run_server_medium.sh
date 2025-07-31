@@ -19,4 +19,4 @@ RECOMMENDED_USE="⚖️  BALANCED: Good speed and accuracy
    Use this for general purpose applications."
 
 # Execute the base script with our configuration
-exec ./run_server.sh "$@" 
+exec ./scripts/run_server.sh "$@" 

@@ -21,4 +21,4 @@ RECOMMENDED_USE="🌍 MULTILINGUAL: Supports multiple languages with speaker ide
    Use this for meetings with multiple speakers in different languages."
 
 # Execute the base script with our configuration
-exec ./run_server.sh "$@" 
+exec ./scripts/run_server.sh "$@" 

@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # WhisperLiveKit Indonesian
-# High accuracy with large model for Bahasa Indonesia
+# Real-time processing for Bahasa Indonesia
 
 # Configuration - easily changeable
-SCRIPT_NAME="WhisperLiveKit Indonesian Large Server (H100x2)"
-SCRIPT_DESC="This script runs WhisperLiveKit server optimized for High accuracy with large model for Bahasa Indonesia."
-MODEL="large-v3"
+SCRIPT_NAME="WhisperLiveKit Indonesian Simul Server (H100x2)"
+SCRIPT_DESC="This script runs WhisperLiveKit server optimized for Real-time processing for Bahasa Indonesia."
+MODEL="medium"
 LANGUAGE="id"
 DIARIZATION="enabled"
-CONFIG_DESC="- Model: large-v3
-- Model: large-v3 (highest accuracy, slower processing)
+CONFIG_DESC="- Model: medium
+- Model: medium (balanced speed/accuracy)
 - Language: Indonesian (id)
 - Diarization: enabled (speaker identification)
 - Background execution with PID management"
@@ -20,10 +20,12 @@ USAGE_EXAMPLES="  $0                                    # Use default settings
   $0 --stop                           # Stop server
   $0 --restart                        # Restart server
   $0 --help                           # Show this help"
-RECOMMENDED_USE="🇮🇩 INDONESIAN Large: High accuracy with large model for Bahasa Indonesia
+RECOMMENDED_USE="🇮🇩 INDONESIAN Simul: Real-time processing for Bahasa Indonesia
      Use this for Indonesian applications."
 
-exec ./run_server.sh \
+# FIXED: Add explicit default arguments to ensure proper port configuration
+# This prevents the server from falling back to the library's default port 8000
+exec ./scripts/run_server.sh \
     --calling-script="$0" \
     --script-name="$SCRIPT_NAME" \
     --script-desc="$SCRIPT_DESC" \
@@ -33,4 +35,8 @@ exec ./run_server.sh \
     --config-desc="$CONFIG_DESC" \
     --usage-examples="$USAGE_EXAMPLES" \
     --recommended-use="$RECOMMENDED_USE" \
+    --port=9001 \
+    --host=localhost \
+    --task=transcribe \
+    --backend=faster-whisper \
     "$@"

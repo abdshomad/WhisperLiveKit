@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Fixes Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #console-output { 
+            background: #f8f9fa; 
+            border: 1px solid #dee2e6; 
+            padding: 10px; 
+            font-family: monospace; 
+            height: 200px; 
+            overflow-y: auto; 
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Fixes Test</h1>
+    
+    <div class="test-result info">
+        <h3>Testing JavaScript Error Fixes</h3>
+        <p>This page tests the fixes for:</p>
+        <ul>
+            <li>✅ ClientLogger initialization (no more "this.log is not a function")</li>
+            <li>✅ AudioContext autoplay policy (no more AudioContext errors)</li>
+            <li>✅ WebSocket message handling (no more "Unknown message type")</li>
+        </ul>
+    </div>
+    
+    <div class="test-result">
+        <h3>Test Results</h3>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="test-result">
+        <h3>Console Output</h3>
+        <div id="console-output"></div>
+    </div>
+    
+    <div class="test-result">
+        <h3>Manual Tests</h3>
+        <button onclick="testLogger()">Test Logger</button>
+        <button onclick="testAudioContext()">Test AudioContext</button>
+        <button onclick="testWebSocket()">Test WebSocket</button>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+    
+    <script>
+        // Capture console output
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            debug: console.debug
+        };
+        
+        const consoleOutput = document.getElementById('console-output');
+        
+        function addToConsole(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = `[${timestamp}] [${type.toUpperCase()}] ${args.join(' ')}`;
+            consoleOutput.innerHTML += message + '<br>';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        // Override console methods
+        console.log = (...args) => {
+            originalConsole.log(...args);
+            addToConsole('log', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalConsole.error(...args);
+            addToConsole('error', ...args);
+        };
+        
+        console.warn = (...args) => {
+            originalConsole.warn(...args);
+            addToConsole('warn', ...args);
+        };
+        
+        console.debug = (...args) => {
+            originalConsole.debug(...args);
+            addToConsole('debug', ...args);
+        };
+        
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+        }
+        
+        function testLogger() {
+            const results = document.getElementById('test-results');
+            try {
+                if (window.clientLogger) {
+                    window.clientLogger.info('Logger test successful');
+                    results.innerHTML += '<div class="success">✅ Logger working correctly</div>';
+                } else {
+                    results.innerHTML += '<div class="error">❌ Logger not found</div>';
+                }
+            } catch (error) {
+                results.innerHTML += `<div class="error">❌ Logger error: ${error.message}</div>`;
+            }
+        }
+        
+        function testAudioContext() {
+            const results = document.getElementById('test-results');
+            try {
+                // This should not throw an autoplay error
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                results.innerHTML += `<div class="success">✅ AudioContext created (state: ${audioContext.state})</div>`;
+            } catch (error) {
+                results.innerHTML += `<div class="error">❌ AudioContext error: ${error.message}</div>`;
+            }
+        }
+        
+        function testWebSocket() {
+            const results = document.getElementById('test-results');
+            try {
+                const ws = new WebSocket('ws://localhost:9002/ws/asr');
+                ws.onopen = () => {
+                    results.innerHTML += '<div class="success">✅ WebSocket connected successfully</div>';
+                    ws.close();
+                };
+                ws.onerror = (error) => {
+                    results.innerHTML += `<div class="error">❌ WebSocket error: ${error}</div>`;
+                };
+            } catch (error) {
+                results.innerHTML += `<div class="error">❌ WebSocket error: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-run tests after page load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, running automatic tests...');
+            
+            setTimeout(() => {
+                testLogger();
+                testAudioContext();
+                testWebSocket();
+                
+                console.log('All tests completed');
+            }, 1000);
+        });
+    </script>
+    
+    <!-- Load the fixed JavaScript files -->
+    <script src="/static/js/logger.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html> 

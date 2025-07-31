@@ -22,7 +22,7 @@ USAGE_EXAMPLES="  $0                                    # Use default settings
 RECOMMENDED_USE="🇮🇩 INDONESIAN Medium: Balanced approach with medium model for Bahasa Indonesia
      Use this for Indonesian applications."
 
-exec ./run_server.sh \
+exec ./scripts/run_server.sh \
     --calling-script="$0" \
     --script-name="$SCRIPT_NAME" \
     --script-desc="$SCRIPT_DESC" \

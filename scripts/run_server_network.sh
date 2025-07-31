@@ -22,4 +22,4 @@ RECOMMENDED_USE="🌐 NETWORK ACCESSIBLE: Accessible from other machines
    Make sure your firewall is properly configured."
 
 # Execute the base script with our configuration
-exec ./run_server.sh "$@" 
+exec ./scripts/run_server.sh "$@" 

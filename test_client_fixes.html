@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Fixes Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Client JavaScript Fixes Test</h1>
+    
+    <div class="test-section info">
+        <h3>Test Instructions</h3>
+        <p>This page tests the JavaScript fixes for:</p>
+        <ul>
+            <li>ClientLogger initialization (no more "this.log is not a function" error)</li>
+            <li>AudioContext handling (no more autoplay policy error)</li>
+            <li>WebSocket connection</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h3>1. Logger Test</h3>
+        <button onclick="testLogger()">Test Logger</button>
+        <div id="logger-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. AudioContext Test</h3>
+        <button onclick="testAudioContext()">Test AudioContext</button>
+        <div id="audio-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. WebSocket Test</h3>
+        <button onclick="testWebSocket()">Test WebSocket</button>
+        <div id="websocket-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. Full WhisperLiveKit Test</h3>
+        <button onclick="testWhisperLiveKit()">Test Full Application</button>
+        <div id="full-result"></div>
+    </div>
+    
+    <script src="/static/js/logger.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+        function testLogger() {
+            const result = document.getElementById('logger-result');
+            try {
+                if (window.clientLogger) {
+                    window.clientLogger.info('Logger test successful');
+                    result.innerHTML = '<div class="success">✅ Logger working correctly</div>';
+                } else {
+                    result.innerHTML = '<div class="error">❌ Logger not found</div>';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Logger error: ${error.message}</div>`;
+            }
+        }
+        
+        function testAudioContext() {
+            const result = document.getElementById('audio-result');
+            try {
+                // Test AudioContext creation (should not throw autoplay error)
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                result.innerHTML = `<div class="success">✅ AudioContext created successfully (state: ${audioContext.state})</div>`;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ AudioContext error: ${error.message}</div>`;
+            }
+        }
+        
+        function testWebSocket() {
+            const result = document.getElementById('websocket-result');
+            try {
+                const ws = new WebSocket('ws://localhost:9002/ws/asr');
+                ws.onopen = () => {
+                    result.innerHTML = '<div class="success">✅ WebSocket connected successfully</div>';
+                    ws.close();
+                };
+                ws.onerror = (error) => {
+                    result.innerHTML = `<div class="error">❌ WebSocket error: ${error}</div>`;
+                };
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ WebSocket error: ${error.message}</div>`;
+            }
+        }
+        
+        function testWhisperLiveKit() {
+            const result = document.getElementById('full-result');
+            try {
+                if (window.whisperLiveKit) {
+                    result.innerHTML = '<div class="success">✅ WhisperLiveKit initialized successfully</div>';
+                } else {
+                    result.innerHTML = '<div class="error">❌ WhisperLiveKit not found</div>';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ WhisperLiveKit error: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-run tests after page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testLogger();
+                testAudioContext();
+                testWebSocket();
+                testWhisperLiveKit();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

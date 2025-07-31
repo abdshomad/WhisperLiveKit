@@ -562,21 +562,23 @@ class AudioProcessor:
 
     async def process_audio(self, message):
         """Process incoming audio data."""
-        if not message:
-            logger.info("Empty audio message received, initiating stop sequence.")
-            self.is_stopping = True
-            # Signal FFmpeg manager to stop accepting data
-            await self.ffmpeg_manager.stop()
-            return
-
-        if self.is_stopping:
-            logger.warning("AudioProcessor is stopping. Ignoring incoming audio.")
-            return
-
-        success = await self.ffmpeg_manager.write_data(message)
-        if not success:
-            ffmpeg_state = await self.ffmpeg_manager.get_state()
-            if ffmpeg_state == FFmpegState.FAILED:
-                logger.error("FFmpeg is in FAILED state, cannot process audio")
-            else:
-                logger.warning("Failed to write audio data to FFmpeg")
+        try:
+            # Log audio chunk processing
+            chunk_size = len(message)
+            logger.info(f"🔄 PROCESSING SOUND CHUNK - Size: {chunk_size} bytes")
+            
+            # Use FFmpeg to convert audio data to PCM format
+            success = await self.ffmpeg_manager.write_data(message)
+            if not success:
+                ffmpeg_state = await self.ffmpeg_manager.get_state()
+                if ffmpeg_state == FFmpegState.FAILED:
+                    logger.error("FFmpeg is in FAILED state, cannot process audio")
+                else:
+                    logger.warning("Failed to write audio data to FFmpeg")
+                return
+                
+            logger.debug(f"📥 AUDIO DATA SENT TO FFMPEG - Size: {chunk_size} bytes")
+                
+        except Exception as e:
+            logger.error(f"❌ ERROR PROCESSING AUDIO CHUNK: {e}", exc_info=True)
+            raise

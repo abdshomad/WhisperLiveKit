@@ -21,4 +21,4 @@ RECOMMENDED_USE="🇮🇩 INDONESIAN OPTIMIZED: Best for Indonesian content with
    Use this for Indonesian meetings and conversations."
 
 # Execute the base script with our configuration
-exec ./run_server.sh "$@"
+exec ./scripts/run_server.sh "$@"

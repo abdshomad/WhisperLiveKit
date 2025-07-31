@@ -17,19 +17,70 @@
 - Verify CUDA is properly installed and accessible
 - Check for GPU availability before starting WhisperLiveKit
 
+## FastAPI Framework
+- Use FastAPI for the web application framework
+- Implement proper API endpoints with type hints
+- Use Pydantic models for request/response validation
+- Include proper error handling and status codes
+- Use async/await for non-blocking operations
+- Implement proper CORS handling if needed
+
+## Jinja Templates
+- Use Jinja2 for HTML template rendering
+- Create reusable template components
+- Use template inheritance with base templates
+- Pass data to templates using FastAPI's Jinja2Templates
+- Organize templates in a `templates/` directory
+- Use proper template syntax and escaping
+
+## HTML Templates
+- Create modern, responsive HTML templates
+- Use semantic HTML5 elements
+- Implement proper CSS styling with modern frameworks
+- Ensure accessibility standards are met
+- Use JavaScript for interactive features
+- Optimize for mobile and desktop viewing
+
 ## Code Style
 - Follow PEP 8 for Python code
 - Use type hints where appropriate
 - Add docstrings for functions and classes
 - Handle GPU errors gracefully
+- Use FastAPI best practices for API design
 
 ## Dependencies
 - Use uv for dependency management
 - Keep requirements.txt or pyproject.toml updated
 - Install GPU-specific packages (torch with CUDA, etc.)
+- Include FastAPI, uvicorn, jinja2, and other web dependencies
+- Use python-multipart for file uploads if needed
 
 ## Running the App
 1. Activate virtual environment: `source .venv/bin/activate` or `uv run`
 2. Check GPU: `nvidia-smi`
-3. Run the app with GPU support
-4. Monitor GPU usage during operation 
+3. Run the FastAPI app using the correct module: `uv run python -m whisperlivekit.basic_server --host 0.0.0.0 --port 9002`
+4. Monitor GPU usage during operation
+5. Access the app at http://localhost:9002
+6. Use FastAPI's automatic documentation at http://localhost:9002/docs
+
+## Process Management
+- Use `./scripts/run_fastapi_server.sh` for managed server startup
+- Check running processes: `ps aux | grep -E "(uvicorn|fastapi|python.*main)" | grep -v grep`
+- Stop specific processes: `pkill -f "python main.py"` or `pkill -f "uvicorn.*main:app"`
+- Avoid stopping all processes unless necessary - target specific applications
+- Use the PID file for process management: `cat ./fastapi_server.pid` 
+
+## Documentation
+- Always update CHANGELOG.md after successfully completing a feature
+  - Add new entries at the top with date and version
+  - Include brief description of the feature implemented
+  - Use consistent formatting and categorization
+- Always update PRD.md (Product Requirements Document) after feature completion
+  - Mark completed features as "Implemented" or "Done"
+  - Update feature status and implementation details
+  - Add any new requirements discovered during development
+- Always update TODO.md after feature completion
+  - Remove completed tasks from TODO list
+  - Add new tasks discovered during development
+  - Update priority levels for remaining tasks
+  - Keep the TODO list current and actionable 

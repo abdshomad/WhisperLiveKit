@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Logging Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .debug { background-color: #f8f9fa; color: #6c757d; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #log-output { 
+            background: #000; 
+            color: #00ff00; 
+            border: 1px solid #333; 
+            padding: 10px; 
+            font-family: monospace; 
+            height: 400px; 
+            overflow-y: auto; 
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        .log-entry { margin: 2px 0; }
+        .log-start { color: #ff6b6b; }
+        .log-received { color: #4ecdc4; }
+        .log-sending { color: #45b7d1; }
+        .log-processing { color: #96ceb4; }
+        .log-end { color: #feca57; }
+    </style>
+</head>
+<body>
+    <h1>🎤 Debug Logging Test - Recording Flow</h1>
+    
+    <div class="test-section info">
+        <h3>🎯 Debug Information Added</h3>
+        <p>This test demonstrates the comprehensive debug logging for the recording flow:</p>
+        <ul>
+            <li>🎤 <strong>Start Recording</strong> - When user clicks record button</li>
+            <li>🎤 <strong>Received Sound</strong> - When audio chunks are captured</li>
+            <li>📤 <strong>Sending Chunk</strong> - When audio data is sent to backend</li>
+            <li>📥 <strong>Receiving Chunk</strong> - When backend receives audio data</li>
+            <li>🔄 <strong>Processing Sound</strong> - When backend processes audio</li>
+            <li>🎤 <strong>End Recording</strong> - When recording stops</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h3>🎤 Recording Controls</h3>
+        <button onclick="startRecording()" id="start-btn">🎤 Start Recording</button>
+        <button onclick="stopRecording()" id="stop-btn" disabled>⏹️ Stop Recording</button>
+        <button onclick="clearLogs()">🗑️ Clear Logs</button>
+        <button onclick="exportLogs()">📥 Export Logs</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>📊 Recording Statistics</h3>
+        <div id="stats">
+            <p>Duration: <span id="duration">0</span>s</p>
+            <p>Chunks Sent: <span id="chunks">0</span></p>
+            <p>Bytes Sent: <span id="bytes">0</span></p>
+            <p>Status: <span id="status">Not Recording</span></p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>📝 Debug Log Output</h3>
+        <div id="log-output"></div>
+    </div>
+    
+    <script src="/static/js/logger.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+        let recordingStartTime = null;
+        let statsInterval = null;
+        
+        // Override logger to capture debug output
+        const originalLogger = window.clientLogger;
+        const logOutput = document.getElementById('log-output');
+        
+        function addLogEntry(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logOutput.appendChild(logEntry);
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+        
+        // Override logger methods to capture output
+        if (window.clientLogger) {
+            const originalInfo = window.clientLogger.info;
+            const originalDebug = window.clientLogger.debug;
+            const originalError = window.clientLogger.error;
+            const originalWarn = window.clientLogger.warn;
+            
+            window.clientLogger.info = function(message, data) {
+                originalInfo.call(this, message, data);
+                addLogEntry(`ℹ️ ${message}`, 'info');
+            };
+            
+            window.clientLogger.debug = function(message, data) {
+                originalDebug.call(this, message, data);
+                addLogEntry(`🔍 ${message}`, 'debug');
+            };
+            
+            window.clientLogger.error = function(message, data) {
+                originalError.call(this, message, data);
+                addLogEntry(`❌ ${message}`, 'error');
+            };
+            
+            window.clientLogger.warn = function(message, data) {
+                originalWarn.call(this, message, data);
+                addLogEntry(`⚠️ ${message}`, 'warn');
+            };
+        }
+        
+        function startRecording() {
+            addLogEntry('🎤 START RECORDING - User clicked start button', 'start');
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('stop-btn').disabled = false;
+            document.getElementById('status').textContent = 'Recording...';
+            
+            recordingStartTime = Date.now();
+            statsInterval = setInterval(updateStats, 100);
+            
+            // Start recording using WhisperLiveKit
+            if (window.whisperLiveKit) {
+                window.whisperLiveKit.startRecording();
+            }
+        }
+        
+        function stopRecording() {
+            addLogEntry('⏹️ STOP RECORDING - User clicked stop button', 'end');
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+            document.getElementById('status').textContent = 'Stopped';
+            
+            if (statsInterval) {
+                clearInterval(statsInterval);
+                statsInterval = null;
+            }
+            
+            // Stop recording using WhisperLiveKit
+            if (window.whisperLiveKit) {
+                window.whisperLiveKit.stopRecording();
+            }
+        }
+        
+        function updateStats() {
+            if (recordingStartTime) {
+                const duration = (Date.now() - recordingStartTime) / 1000;
+                document.getElementById('duration').textContent = duration.toFixed(1);
+                
+                if (window.whisperLiveKit) {
+                    document.getElementById('chunks').textContent = window.whisperLiveKit.audioChunkCount || 0;
+                    document.getElementById('bytes').textContent = window.whisperLiveKit.totalBytesSent || 0;
+                }
+            }
+        }
+        
+        function clearLogs() {
+            logOutput.innerHTML = '';
+            addLogEntry('🗑️ Logs cleared', 'debug');
+        }
+        
+        function exportLogs() {
+            const logData = {
+                timestamp: new Date().toISOString(),
+                logs: Array.from(logOutput.children).map(el => el.textContent),
+                stats: {
+                    duration: document.getElementById('duration').textContent,
+                    chunks: document.getElementById('chunks').textContent,
+                    bytes: document.getElementById('bytes').textContent
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(logData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `recording-debug-logs-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            addLogEntry('📥 Logs exported', 'debug');
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            addLogEntry('🚀 Debug logging test initialized', 'info');
+            addLogEntry('📋 Ready to test recording flow with comprehensive logging', 'info');
+        });
+    </script>
+</body>
+</html> 

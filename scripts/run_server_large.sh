@@ -20,4 +20,4 @@ RECOMMENDED_USE="🎯 HIGH ACCURACY: Best transcription quality
    Use this when accuracy is more important than speed."
 
 # Execute the base script with our configuration
-exec ./run_server.sh "$@" 
+exec ./scripts/run_server.sh "$@" 

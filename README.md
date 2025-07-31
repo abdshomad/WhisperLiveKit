@@ -46,11 +46,27 @@ pip install whisperlivekit
 # Start the transcription server
 whisperlivekit-server --model tiny.en
 
+# Or use the FastAPI server (recommended)
+./scripts/run_fastapi_server.sh
+
 # Open your browser at http://localhost:8000 to see the interface.
 # Use  -ssl-certfile public.crt --ssl-keyfile private.key parameters to use SSL
 ```
 
 That's it! Start speaking and watch your words appear on screen.
+
+## 📚 Documentation
+
+For comprehensive documentation, guides, and tutorials, see the **[docs/](./docs/)** directory:
+
+- **[FastAPI Application Guide](./docs/FASTAPI_README.md)** - Modern FastAPI-based web interface
+- **[Dual GPU Configuration](./docs/DUAL_GPU_GUIDE.md)** - Using both NVIDIA H100 NVL GPUs
+- **[H100x2 Setup Guide](./docs/SETUP_GUIDE_H100x2.md)** - GPU setup and optimization
+- **[Indonesian Language Support](./tests/test_indonesian_scripts.md)** - Indonesian model configurations
+
+### 📋 Project Management
+- **[Product Requirements Document](./docs/PRD.md)** - Comprehensive product specifications
+- **[Development TODO](./docs/TODO.md)** - Task tracking and development roadmap
 
 ## Installation
 

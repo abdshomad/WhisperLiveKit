@@ -20,4 +20,4 @@ export RECOMMENDED_USE="⚡ SPEED OPTIMIZED: Fastest processing with lower accur
    Use this for real-time applications where speed is critical."
 
 # Execute the base script with our configuration
-exec ./run_server.sh "$@" 
+exec ./scripts/run_server.sh "$@" 
