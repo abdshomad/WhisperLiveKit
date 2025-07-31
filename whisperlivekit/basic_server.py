@@ -1,10 +1,11 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from whisperlivekit import TranscriptionEngine, AudioProcessor, get_web_interface_html, parse_args
 import asyncio
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logging.getLogger().setLevel(logging.WARNING)
@@ -34,6 +35,28 @@ app.add_middleware(
 @app.get("/")
 async def get():
     return HTMLResponse(get_web_interface_html())
+
+@app.get("/server-info")
+async def get_server_info():
+    """Return server configuration information for the web interface."""
+    # Get the calling script name from environment variable or default
+    script_name = os.environ.get('CALLING_SCRIPT', 'whisperlivekit-server')
+    if script_name and script_name != 'whisperlivekit-server':
+        # Extract just the script name without path
+        script_name = os.path.basename(script_name)
+    
+    server_info = {
+        "script_name": script_name,
+        "model": args.model,
+        "language": args.lan,
+        "diarization": args.diarization,
+        "backend": args.backend,
+        "task": args.task,
+        "host": args.host,
+        "port": args.port,
+    }
+    
+    return JSONResponse(server_info)
 
 
 async def handle_websocket_results(websocket, results_generator):

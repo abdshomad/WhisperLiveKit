@@ -676,7 +676,71 @@
         }
 
         recordButton.addEventListener("click", toggleRecording);
+
+        // Function to fetch and display server info
+        async function fetchServerInfo() {
+            try {
+                const response = await fetch('/server-info');
+                if (response.ok) {
+                    const serverInfo = await response.json();
+                    updateServerInfo(serverInfo);
+                }
+            } catch (error) {
+                console.log('Could not fetch server info:', error);
+            }
+        }
+
+        function updateServerInfo(serverInfo) {
+            const footer = document.getElementById('serverInfo');
+            if (footer && serverInfo) {
+                footer.innerHTML = `
+                    <div class="server-info">
+                        <strong>Server:</strong> ${serverInfo.script_name || 'Unknown'} 
+                        | <strong>Model:</strong> ${serverInfo.model || 'Unknown'} 
+                        | <strong>Language:</strong> ${serverInfo.language || 'Unknown'} 
+                        | <strong>Diarization:</strong> ${serverInfo.diarization ? 'Enabled' : 'Disabled'}
+                        ${serverInfo.backend ? ` | <strong>Backend:</strong> ${serverInfo.backend}` : ''}
+                        ${serverInfo.task ? ` | <strong>Task:</strong> ${serverInfo.task}` : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // Fetch server info when page loads
+        fetchServerInfo();
     </script>
+
+    <!-- Server Info Footer -->
+    <div id="serverInfo" style="
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        padding: 10px;
+        font-size: 12px;
+        color: #6c757d;
+        text-align: center;
+        z-index: 1000;
+    ">
+        <div class="server-info">
+            <span class="spinner"></span> Loading server information...
+        </div>
+    </div>
+
+    <style>
+        .server-info {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            line-height: 1.4;
+        }
+        
+        /* Add bottom margin to prevent content from being hidden behind footer */
+        body {
+            margin-bottom: 60px;
+        }
+    </style>
 </body>
 
 </html>
