@@ -476,26 +476,51 @@
             color: #2c3e50;
             margin-bottom: 15px;
             font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transcript-header::before {
+            content: "📝";
+            font-size: 1.2rem;
+        }
+
+        .session-timer {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-left: auto;
+            padding: 4px 8px;
+            background: rgba(127, 140, 141, 0.1);
+            border-radius: 4px;
+            border: 1px solid rgba(127, 140, 141, 0.3);
         }
 
         #linesTranscript {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             padding: 15px;
             background: rgba(255, 255, 255, 0.7);
             border-radius: 10px;
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
-            line-height: 1.6;
+            line-height: 1.8;
             color: #2c3e50;
+            display: flex;
+            flex-direction: column;
         }
 
         .line {
-            margin-bottom: 8px;
-            padding: 8px 12px;
-            border-radius: 6px;
+            margin-bottom: 12px;
+            padding: 10px 15px;
+            border-radius: 8px;
             background: rgba(255, 255, 255, 0.8);
             border-left: 4px solid #3498db;
+            display: flex;
+            align-items: flex-start;
+            word-wrap: break-word;
+            word-break: break-word;
         }
 
         .line.final {
@@ -508,6 +533,21 @@
             font-style: italic;
             background: rgba(127, 140, 141, 0.1);
             border-left-color: #95a5a6;
+        }
+
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .line {
+            animation: slideInFromBottom 0.3s ease-out;
         }
 
 
@@ -709,7 +749,10 @@
         </div>
 
         <div class="transcript-container">
-            <div class="transcript-header">📝 Hasil Transkripsi</div>
+            <div class="transcript-header">
+                <span>📝 Hasil Transkripsi</span>
+                <span id="session-timer" class="session-timer">00:00</span>
+            </div>
             <div id="linesTranscript"></div>
         </div>
 
@@ -756,6 +799,7 @@
         const linesTranscriptDiv = document.getElementById("linesTranscript");
         const timerElement = document.querySelector(".timer");
         const recordingsList = document.getElementById("recordingsList");
+        const sessionTimerElement = document.getElementById("session-timer");
 
         // Initialize speaker boxes
         document.querySelectorAll('.speaker-box').forEach(box => {
@@ -891,6 +935,20 @@
                 const lineDiv = document.createElement("div");
                 lineDiv.className = `line ${line.final ? 'final' : 'apercu'}`;
                 
+                // Create timestamp span
+                const timestampSpan = document.createElement("span");
+                timestampSpan.style.fontSize = "0.8rem";
+                timestampSpan.style.color = "#7f8c8d";
+                timestampSpan.style.fontFamily = "monospace";
+                timestampSpan.style.marginRight = "10px";
+                timestampSpan.style.minWidth = "120px";
+                timestampSpan.style.display = "inline-block";
+                
+                // Format timestamp from beg and end times
+                const begTime = line.beg || "00:00";
+                const endTime = line.end || "00:00";
+                timestampSpan.textContent = `[${begTime} - ${endTime}]`;
+                
                 const speakerSpan = document.createElement("span");
                 speakerSpan.style.fontWeight = "bold";
                 speakerSpan.style.fontSize = "1.1rem";
@@ -915,7 +973,9 @@
                 
                 const textSpan = document.createElement("span");
                 textSpan.textContent = line.text;
+                textSpan.style.marginLeft = "5px";
                 
+                lineDiv.appendChild(timestampSpan);
                 lineDiv.appendChild(speakerSpan);
                 lineDiv.appendChild(textSpan);
                 linesTranscriptDiv.appendChild(lineDiv);
@@ -972,6 +1032,15 @@
         function updateDiarization(text) {
             if (!text) return;
             console.log("Diarization:", text);
+        }
+
+        function updateSessionTimer() {
+            if (startTime) {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                sessionTimerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
         }
 
         function updateActiveSpeaker(speakerId) {
@@ -1054,6 +1123,9 @@
             const minutes = Math.floor(elapsed / 60);
             const seconds = elapsed % 60;
             timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Also update session timer
+            updateSessionTimer();
         }
 
         function drawWaveform() {
@@ -1108,6 +1180,7 @@
                 
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
+                updateSessionTimer(); // Initialize session timer
                 drawWaveform();
                 
                 isRecording = true;
@@ -1165,6 +1238,7 @@
                 timerInterval = null;
             }            
             timerElement.textContent = "00:00";
+            sessionTimerElement.textContent = "00:00";
             startTime = null;
             
             isRecording = false;
@@ -1254,6 +1328,7 @@
                     <button class="btn btn-danger" onclick="deleteRecording(${recording.id})">🗑️ Delete</button>
                 </div>
                 <audio id="audio-${recording.id}" class="audio-player" controls style="display: none;">
+                    <source src="/api/recordings/${recording.id}/download" type="audio/mpeg">
                     <source src="/api/recordings/${recording.id}/download" type="audio/wav">
                     Your browser does not support the audio element.
                 </audio>

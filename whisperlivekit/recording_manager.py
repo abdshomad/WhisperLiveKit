@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Optional, Dict, List
 import wave
 import json
+import subprocess
+import tempfile
 from pathlib import Path
 
 from .database import RecordingDatabase
@@ -29,7 +31,7 @@ class RecordingManager:
             
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         session_id = session_id or f"session_{timestamp}"
-        filename = f"recording_{timestamp}.wav"
+        filename = f"recording_{timestamp}.mp3"  # Changed from .wav to .mp3
         filepath = self.recordings_dir / filename
         
         self.current_recording = {
@@ -60,6 +62,20 @@ class RecordingManager:
             
         self.current_recording["audio_chunks"].append(audio_data)
         logger.debug(f"Added audio chunk, total chunks: {len(self.current_recording['audio_chunks'])}")
+        return True
+    
+    def add_processed_audio_chunk(self, processed_audio_data: bytes, session_id: str = None):
+        """Add processed audio chunk (PCM s16le format) to current recording."""
+        if not self.current_recording:
+            logger.warning("No active recording")
+            return False
+            
+        if session_id and self.current_recording["session_id"] != session_id:
+            logger.warning(f"Session ID mismatch: {session_id} vs {self.current_recording['session_id']}")
+            return False
+            
+        self.current_recording["audio_chunks"].append(processed_audio_data)
+        logger.debug(f"Added processed audio chunk, total chunks: {len(self.current_recording['audio_chunks'])}")
         return True
     
     def add_transcription(self, transcription: str, session_id: str = None):
@@ -134,52 +150,94 @@ class RecordingManager:
             return None
     
     def _save_audio_file(self, filepath: Path, audio_chunks: List[bytes]):
-        """Save audio chunks to WAV file."""
+        """Save processed audio chunks (PCM s16le format) to MP3 file using FFmpeg."""
         try:
             if not audio_chunks:
                 logger.warning("No audio chunks to save")
-                # Create an empty file with minimal WAV header
+                # Create an empty MP3 file
                 with open(filepath, 'wb') as f:
-                    # Write minimal WAV header for empty file
-                    f.write(b'RIFF')
-                    f.write((0).to_bytes(4, 'little'))  # File size - 8
-                    f.write(b'WAVE')
-                    f.write(b'fmt ')
-                    f.write((16).to_bytes(4, 'little'))  # fmt chunk size
-                    f.write((1).to_bytes(2, 'little'))   # PCM format
-                    f.write((1).to_bytes(2, 'little'))   # Mono
-                    f.write((16000).to_bytes(4, 'little'))  # Sample rate
-                    f.write((32000).to_bytes(4, 'little'))  # Byte rate
-                    f.write((2).to_bytes(2, 'little'))   # Block align
-                    f.write((16).to_bytes(2, 'little'))  # Bits per sample
-                    f.write(b'data')
-                    f.write((0).to_bytes(4, 'little'))  # Data size
+                    # Write minimal MP3 header (silent MP3)
+                    f.write(b'\xff\xfb\x90\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
                 return
             
             # Calculate total size of audio data
             total_size = sum(len(chunk) for chunk in audio_chunks)
             
-            with open(filepath, 'wb') as f:
-                # Write WAV header
-                f.write(b'RIFF')
-                f.write((36 + total_size).to_bytes(4, 'little'))  # File size - 8
-                f.write(b'WAVE')
-                f.write(b'fmt ')
-                f.write((16).to_bytes(4, 'little'))  # fmt chunk size
-                f.write((1).to_bytes(2, 'little'))   # PCM format
-                f.write((1).to_bytes(2, 'little'))   # Mono
-                f.write((16000).to_bytes(4, 'little'))  # Sample rate
-                f.write((32000).to_bytes(4, 'little'))  # Byte rate
-                f.write((2).to_bytes(2, 'little'))   # Block align
-                f.write((16).to_bytes(2, 'little'))  # Bits per sample
-                f.write(b'data')
-                f.write(total_size.to_bytes(4, 'little'))  # Data size
+            # Create a temporary WAV file for FFmpeg input
+            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_wav:
+                temp_wav_path = temp_wav.name
                 
-                # Write audio data
+                # Write WAV header to temporary file
+                temp_wav.write(b'RIFF')
+                temp_wav.write((36 + total_size).to_bytes(4, 'little'))  # File size - 8
+                temp_wav.write(b'WAVE')
+                temp_wav.write(b'fmt ')
+                temp_wav.write((16).to_bytes(4, 'little'))  # fmt chunk size
+                temp_wav.write((1).to_bytes(2, 'little'))   # PCM format
+                temp_wav.write((1).to_bytes(2, 'little'))   # Mono
+                temp_wav.write((16000).to_bytes(4, 'little'))  # Sample rate
+                temp_wav.write((32000).to_bytes(4, 'little'))  # Byte rate
+                temp_wav.write((2).to_bytes(2, 'little'))   # Block align
+                temp_wav.write((16).to_bytes(2, 'little'))  # Bits per sample
+                temp_wav.write(b'data')
+                temp_wav.write(total_size.to_bytes(4, 'little'))  # Data size
+                
+                # Write processed PCM audio data to temporary file
                 for chunk in audio_chunks:
-                    f.write(chunk)
+                    temp_wav.write(chunk)
             
-            logger.info(f"Audio file saved: {filepath} ({total_size} bytes)")
+            try:
+                # Use FFmpeg to convert WAV to MP3
+                cmd = [
+                    'ffmpeg',
+                    '-y',  # Overwrite output file
+                    '-f', 'wav',
+                    '-i', temp_wav_path,
+                    '-acodec', 'libmp3lame',
+                    '-ab', '128k',  # 128 kbps bitrate
+                    '-ar', '16000',  # 16kHz sample rate
+                    '-ac', '1',      # Mono
+                    str(filepath)
+                ]
+                
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=30  # 30 second timeout
+                )
+                
+                if result.returncode != 0:
+                    logger.error(f"FFmpeg conversion failed: {result.stderr}")
+                    # Fallback: save as WAV if MP3 conversion fails
+                    filepath = filepath.with_suffix('.wav')
+                    with open(filepath, 'wb') as f:
+                        f.write(b'RIFF')
+                        f.write((36 + total_size).to_bytes(4, 'little'))
+                        f.write(b'WAVE')
+                        f.write(b'fmt ')
+                        f.write((16).to_bytes(4, 'little'))
+                        f.write((1).to_bytes(2, 'little'))
+                        f.write((1).to_bytes(2, 'little'))
+                        f.write((16000).to_bytes(4, 'little'))
+                        f.write((32000).to_bytes(4, 'little'))
+                        f.write((2).to_bytes(2, 'little'))
+                        f.write((16).to_bytes(2, 'little'))
+                        f.write(b'data')
+                        f.write(total_size.to_bytes(4, 'little'))
+                        for chunk in audio_chunks:
+                            f.write(chunk)
+                    logger.info(f"Audio file saved as WAV (fallback): {filepath}")
+                else:
+                    logger.info(f"Audio file saved as MP3: {filepath}")
+                    
+            finally:
+                # Clean up temporary WAV file
+                try:
+                    os.unlink(temp_wav_path)
+                except OSError:
+                    pass
+                    
         except Exception as e:
             logger.error(f"Error saving audio file: {e}")
             raise

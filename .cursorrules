@@ -1,0 +1,140 @@
+# Cursor Rules for WhisperLiveKit Project
+# This file configures Cursor to use the uv virtual environment for Python development
+
+# Always use the uv virtual environment for Python applications
+# The virtual environment is located in .venv directory
+# This ensures consistent Python package management and isolation
+
+# Python interpreter configuration
+# Use the Python interpreter from the uv virtual environment
+python_interpreter: .venv/bin/python
+
+# Terminal configuration
+# Always activate the virtual environment in new terminals
+terminal_commands:
+  - source .venv/bin/activate
+
+# Code execution settings
+# Ensure Python scripts run with the virtual environment
+execution:
+  python:
+    interpreter: .venv/bin/python
+    activate_venv: true
+
+# Linting and formatting
+# Use tools from the virtual environment
+linting:
+  python:
+    interpreter: .venv/bin/python
+    use_venv: true
+
+# Package management
+# Prefer uv for package management
+package_manager: uv
+
+# Development environment
+# Set environment variables for development
+env:
+  PYTHONPATH: "${workspaceFolder}"
+  VIRTUAL_ENV: "${workspaceFolder}/.venv"
+
+# File associations
+# Ensure Python files are associated with the correct interpreter
+file_associations:
+  "*.py": python
+
+# Debugging configuration
+# Use the virtual environment for debugging
+debug:
+  python:
+    interpreter: .venv/bin/python
+    activate_venv: true
+
+# Code completion and IntelliSense
+# Use packages from the virtual environment
+intellisense:
+  python:
+    interpreter: .venv/bin/python
+    use_venv: true
+
+# Testing configuration
+# Run tests with the virtual environment
+testing:
+  python:
+    interpreter: .venv/bin/python
+    activate_venv: true
+
+# Code generation and AI assistance
+# Always suggest using the virtual environment for new Python code
+code_generation:
+  python:
+    interpreter: .venv/bin/python
+    activate_venv: true
+    prefer_uv: true
+
+# Documentation and comments
+# Always reference the virtual environment in documentation
+documentation:
+  python:
+    mention_venv: true
+    uv_commands: true
+
+# GPU Configuration
+# Always prefer GPU over CPU for compute-intensive tasks
+# This is especially important for WhisperLiveKit which benefits from GPU acceleration
+
+# Hardware acceleration settings
+hardware_acceleration:
+  gpu:
+    preferred: true
+    fallback_to_cpu: false
+    cuda_available: true
+    torch_device: "cuda"
+
+# GPU availability check
+# Always check GPU availability using nvidia-smi before running GPU-intensive tasks
+gpu_checks:
+  pre_execution:
+    - command: "nvidia-smi"
+    - description: "Check GPU availability and status"
+    - required: true
+    - timeout: 10
+
+# Environment variables for GPU usage
+env:
+  PYTHONPATH: "${workspaceFolder}"
+  VIRTUAL_ENV: "${workspaceFolder}/.venv"
+  CUDA_VISIBLE_DEVICES: "0"
+  PYTORCH_CUDA_ALLOC_CONF: "max_split_size_mb:128"
+  TF_FORCE_GPU_ALLOW_GROWTH: "true"
+
+# Code generation preferences
+# Always suggest GPU-optimized code and configurations
+code_generation:
+  python:
+    interpreter: .venv/bin/python
+    activate_venv: true
+    prefer_uv: true
+    gpu_optimized: true
+    device_preference: "cuda"
+
+# AI assistance preferences
+# Always suggest GPU usage for machine learning and audio processing tasks
+ai_assistance:
+  ml_tasks:
+    device: "cuda"
+    prefer_gpu: true
+  audio_processing:
+    device: "cuda"
+    prefer_gpu: true
+  whisper_tasks:
+    device: "cuda"
+    prefer_gpu: true
+
+# Testing configuration with GPU
+testing:
+  python:
+    interpreter: .venv/bin/python
+    activate_venv: true
+    gpu_available: true
+    device: "cuda" 

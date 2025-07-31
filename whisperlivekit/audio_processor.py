@@ -60,6 +60,9 @@ class AudioProcessor:
         self.sep = " "  # Default separator
         self.last_response_content = ""
         
+        # Recording callback
+        self.recording_callback = None
+        
         # Models and processing
         self.asr = models.asr
         self.tokenizer = models.tokenizer
@@ -91,6 +94,10 @@ class AudioProcessor:
         # Initialize transcription engine if enabled
         if self.args.transcription:
             self.online = online_factory(self.args, models.asr, models.tokenizer)
+
+    def set_recording_callback(self, callback):
+        """Set a callback function to receive processed audio data for recording."""
+        self.recording_callback = callback
 
     def convert_pcm_to_float(self, pcm_buffer):
         """Convert PCM buffer in s16le format to normalized NumPy array."""
@@ -203,7 +210,15 @@ class AudioProcessor:
 
                     # Process audio chunk
                     pcm_array = self.convert_pcm_to_float(self.pcm_buffer[:self.max_bytes_per_sec])
+                    processed_audio_chunk = self.pcm_buffer[:self.max_bytes_per_sec]
                     self.pcm_buffer = self.pcm_buffer[self.max_bytes_per_sec:]
+                    
+                    # Send processed audio to recording callback if set
+                    if self.recording_callback:
+                        try:
+                            self.recording_callback(processed_audio_chunk)
+                        except Exception as e:
+                            logger.warning(f"Error in recording callback: {e}")
                     
                     # Send to transcription if enabled
                     if self.args.transcription and self.transcription_queue:

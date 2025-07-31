@@ -134,20 +134,26 @@ async def download_recording(recording_id: int, request: Request):
                 "Content-Length": str(len(data))
             }
             
+            # Determine media type based on file extension
+            media_type = "audio/mpeg" if filepath.suffix.lower() == ".mp3" else "audio/wav"
+            
             return Response(
                 content=data,
                 headers=headers,
-                media_type="audio/wav",
+                media_type=media_type,
                 status_code=206
             )
         except (ValueError, IndexError):
             raise HTTPException(status_code=416, detail="Range Not Satisfiable")
     
+    # Determine media type based on file extension
+    media_type = "audio/mpeg" if filepath.suffix.lower() == ".mp3" else "audio/wav"
+    
     # Return full file
     return FileResponse(
         path=str(filepath),
         filename=filepath.name,
-        media_type="audio/wav",
+        media_type=media_type,
         headers={"Accept-Ranges": "bytes"}
     )
 
@@ -197,6 +203,13 @@ async def websocket_endpoint(websocket: WebSocket):
     # Start recording automatically when WebSocket connects
     session_id = recording_manager.start_recording()
     logger.info(f"Started recording session: {session_id}")
+    
+    # Set up recording callback to capture processed audio data
+    def recording_callback(processed_audio_chunk):
+        if recording_manager.is_recording():
+            recording_manager.add_processed_audio_chunk(processed_audio_chunk, session_id)
+    
+    audio_processor.set_recording_callback(recording_callback)
             
     results_generator = await audio_processor.create_tasks()
     websocket_task = asyncio.create_task(handle_websocket_results(websocket, results_generator))
@@ -205,9 +218,8 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             message = await websocket.receive_bytes()
             
-            # Add audio chunk to recording
-            if recording_manager.is_recording():
-                recording_manager.add_audio_chunk(message, session_id)
+            # Note: We no longer add raw audio chunks to recording here
+            # The processed audio will be captured via the callback
             
             await audio_processor.process_audio(message)
     except KeyError as e:

@@ -6,13 +6,14 @@ This document describes the recording functionality that has been added to Whisp
 
 ### 🎵 Recording Management
 - **Automatic Recording**: Recordings are automatically started when a WebSocket connection is established
-- **Audio Storage**: Audio files are saved in the `recordings/` folder
+- **Audio Storage**: Audio files are saved in the `recordings/` folder as MP3 format
 - **Database Storage**: Recording metadata is stored in SQLite database (`recordings.db`)
 - **Transcription Storage**: Transcriptions are automatically saved with recordings
+- **MP3 Conversion**: Audio is converted to MP3 format using FFmpeg for smaller file sizes
 
 ### 🎧 Playback Functionality
 - **Web Interface**: Built-in audio player in the web interface
-- **Download Support**: Recordings can be downloaded as WAV files
+- **Download Support**: Recordings can be downloaded as MP3 files (with WAV fallback)
 - **Recording List**: View all recordings with metadata (duration, file size, creation date)
 
 ### 📊 Recording Metadata
@@ -66,7 +67,7 @@ whisperlivekit/
 ├── web/
 │   └── live_transcription.html  # Updated web interface
 └── recordings/              # Audio files storage
-    └── recording_*.wav      # Recorded audio files
+    └── recording_*.mp3      # Recorded audio files (MP3 format)
 ```
 
 ## Usage
@@ -120,8 +121,9 @@ curl -X DELETE http://localhost:8000/api/recordings/1
 
 ### Audio Format
 - **Input**: WebM audio from browser's MediaRecorder API
-- **Storage**: Raw PCM data (can be enhanced to support proper WAV format)
-- **Playback**: Served as WAV files for browser compatibility
+- **Storage**: MP3 format using FFmpeg conversion (128 kbps, 16kHz, mono)
+- **Fallback**: WAV format if FFmpeg conversion fails
+- **Playback**: Served as MP3 files for browser compatibility with WAV fallback
 
 ### Database Operations
 - **Automatic Creation**: Database and tables are created automatically on first run
